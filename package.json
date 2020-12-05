@@ -1,0 +1,18 @@
+{
+  "name": "email-vc-issuer",
+  "version": "1.0.0",
+  "description": "npx jest",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^26.0.16",
+    "@types/node": "^14.14.10",
+    "jest": "^26.6.3",
+    "ts-jest": "^26.4.4",
+    "typescript": "^4.1.2"
+  }
+}

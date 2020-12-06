@@ -2,11 +2,12 @@
   "name": "email-vc-issuer",
   "private": true,
   "version": "1.0.0",
-  "description": "<p align=\"middle\">     <img src=\"https://www.rifos.org/assets/img/logo.svg\" alt=\"logo\" height=\"100\" > </p> <h3 align=\"middle\"><code>email-vc-issuer</code></h3> <p align=\"middle\">     Email Verifiable Credential issuer. </p>",
+  "description": "Email Verifiable Credential issuer",
   "main": "index.js",
   "scripts": {
     "test": "cd back && npm test",
-    "serve:test": "concurrently \"cd back && npm run serve:test\" \"npx serve front\""
+    "setup:test": "cd back && npm i && cd .. && cd front && yarn",
+    "serve:test": "concurrently \"cd back && npm run serve:test\" \"cd front && yarn start\""
   },
   "repository": {
     "type": "git",

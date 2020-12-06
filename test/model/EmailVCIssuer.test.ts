@@ -1,11 +1,8 @@
-import EmailVCIssuer from './EmailVCIssuer'
 import Ajv from 'ajv'
 import emailCredentialSchema from '@rsksmart/vc-json-schemas/schema/EmailCredentialSchema/v1.0/schema.json'
 import { verifyCredential } from 'did-jwt-vc'
-import { createIssuer, createResolver } from './TestObjectFactory'
-
-const issuer = createIssuer()
-const resolver = createResolver()
+import EmailVCIssuer from '../../model/EmailVCIssuer'
+import { issuer, resolver } from '../mocks'
 
 const ajv = new Ajv()
 const validateEmailSchema = ajv.compile(emailCredentialSchema.schema)

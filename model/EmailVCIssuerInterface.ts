@@ -3,7 +3,7 @@ import VerificationCodeChecker from './VerificationCodeChecker'
 import PersonalSignRecoverer from './PersonalSignRecoverer'
 import EmailVCIssuer from './EmailVCIssuer'
 
-type DecorateVerificationCode = (verificationCode: string) => string
+export type DecorateVerificationCode = (verificationCode: string) => string
 
 export const INVALID_SIGNATURE_ERROR_MESSAGE = 'Invalid signature'
 

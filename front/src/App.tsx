@@ -1,4 +1,6 @@
 import React, { useState } from 'react'
+import RLogin from '@rsksmart/rlogin'
+import WalletConnectProvider from '@walletconnect/web3-provider'
 import Nav from './Nav'
 
 const backUrl = 'http://localhost:3500'
@@ -7,27 +9,54 @@ declare global {
   interface Window {
     ethereum: {
       enable: () => Promise<string[]>
-      request: (args: any) => Promise<any>
     }
   }
 }
+
+interface Web3Provider {
+  request: (args: { method: string, params?: any[] }) => Promise<any>
+}
+
+export const rLogin = new RLogin({
+  cachedProvider: false,
+  providerOptions: {
+    walletconnect: {
+      package: WalletConnectProvider,
+      options: {
+        rpc: {
+          1: 'https://mainnet.infura.io/v3/8043bb2cf99347b1bfadfb233c5325c0',
+          30: 'https://public-node.rsk.co',
+          31: 'https://public-node.testnet.rsk.co'
+        }
+      }
+    }
+  },
+  supportedChains: [31]
+})
 
 const handleInputChangeFactory = (setter: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => setter(e.target.value)
 
 function App() {
   const [error, setError] = useState('')
+  const [provider, setProvider] = useState<Web3Provider | null>(null)
   const [account, setAccount] = useState('')
   const [emailAddress, setEmailAddress] = useState('')
   const [wasEmailSent, setWasEmailSent] = useState(false)
   const [verificationCode, setVerificationCode] = useState('')
   const [jwt, setJwt] = useState('')
 
-  const did = !!account ? `did:ethr:rsk:${account}` : ''
+  const did = !!account ? `did:ethr:rsk:testnet:${account}` : ''
 
-  const handleError = (error: Error) => setError(error.message)
+  const handleError = (error: Error) => setError(error ? error.message : 'Unhandled error')
 
-  const enable = () => window.ethereum.enable()
-    .then((accounts: string[]) => { setAccount(accounts[0]) })
+  const enable = () => rLogin.connect()
+    .then((provider: Web3Provider) => {
+      setProvider(provider)
+      return provider.request({ method: 'eth_accounts' })
+    })
+    .then((accounts: string[]) => {
+      setAccount(accounts[0])
+    })
     .catch(handleError)
 
   const requestVerification = () => fetch(`${backUrl}/requestVerification/` + did, {
@@ -45,7 +74,7 @@ function App() {
     setWasEmailSent(true)
   }).catch(handleError)
 
-  const verify = () => window.ethereum.request({
+  const verify = () => provider!.request({
     method: 'personal_sign',
     params: [
       account,
@@ -68,7 +97,7 @@ function App() {
     .catch(handleError)
 
 
-  return <>
+  return <div>
     <Nav />
     <div className="container">
       <div className="row">
@@ -102,7 +131,7 @@ function App() {
         </div>
       </div>
     </div>
-  </>
+  </div>
 }
 
 export default App;

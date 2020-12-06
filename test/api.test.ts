@@ -8,11 +8,11 @@ import { INVALID_SIGNATURE_ERROR_MESSAGE } from '../src/model/EmailVCIssuerInter
 import { CODE_NOT_GENERATED_ERROR_MESSAGE } from '../src/model/VerificationCodeChecker'
 
 describe('service', function (this: {
-  sendVerificationCode: (content: string) => Promise<void>
+  sendVerificationCode: (to: string, text: string) => Promise<void>
   lastVerificationCodeSent: string
 }) {
-  this.sendVerificationCode = (content: string) => {
-    this.lastVerificationCodeSent = content
+  this.sendVerificationCode = (to: string, text: string) => {
+    this.lastVerificationCodeSent = text
     return Promise.resolve()
   }
 

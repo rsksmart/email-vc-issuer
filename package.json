@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "npx jest",
-    "build": "npx tsc"
+    "build": "npx tsc",
+    "serve:test": "npm run build && node dist/scripts/test.js"
   },
   "author": "",
   "license": "ISC",
@@ -30,6 +31,7 @@
     "body-parser": "^1.19.0",
     "did-jwt-vc": "^1.0.6",
     "ethereumjs-util": "^7.0.7",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "nodemailer": "^6.4.16"
   }
 }

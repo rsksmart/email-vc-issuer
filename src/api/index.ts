@@ -6,7 +6,7 @@ import EmailVCIssuerInterface, { DecorateVerificationCode } from '../model/Email
 export function setupService(app: Express, options: {
   issuer: Issuer
   decorateVerificationCode: DecorateVerificationCode,
-  sendVerificationCode: (content: string) => Promise<void>
+  sendVerificationCode: (to: string, text: string) => Promise<void>
 }) {
   const emailVCIssuerInterface = new EmailVCIssuerInterface(options.issuer, options.decorateVerificationCode)
 
@@ -16,7 +16,7 @@ export function setupService(app: Express, options: {
 
     const verificationCode = emailVCIssuerInterface.requestVerificationFor(did, emailAddress)
 
-    options.sendVerificationCode(verificationCode)
+    options.sendVerificationCode(emailAddress, verificationCode)
 
     res.status(200).send()
   })

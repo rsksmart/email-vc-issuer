@@ -21,6 +21,7 @@ You can run the service locally with a dummy email sender
 
 ```
 npm i
+npm run setup
 npm run serve:test
 ```
 

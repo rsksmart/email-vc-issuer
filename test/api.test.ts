@@ -4,7 +4,7 @@ import { verifyCredential } from 'did-jwt-vc'
 import { rpcPersonalSign } from './utils'
 import { issuer, resolver, decorateVerificationCode, did, privateKey, emailAddress, anotherPrivateKey } from './mocks'
 import { setupService } from '../src/api'
-import { INVALID_SIGNATURE_ERROR_MESSAGE } from '../src/model/EmailVCIssuerInterface'
+import EmailVCIssuerInterface, { INVALID_SIGNATURE_ERROR_MESSAGE } from '../src/model/EmailVCIssuerInterface'
 import { CODE_NOT_GENERATED_ERROR_MESSAGE } from '../src/model/VerificationCodeChecker'
 
 describe('service', function (this: {
@@ -19,7 +19,8 @@ describe('service', function (this: {
 
   beforeEach(() => {
     this.app = express()
-    setupService(this.app, { issuer, decorateVerificationCode, sendVerificationCode: this.sendVerificationCode })
+    const emailVCIssuerInterface = new EmailVCIssuerInterface(issuer, decorateVerificationCode)
+    setupService(this.app, { emailVCIssuerInterface, sendVerificationCode: this.sendVerificationCode })
   })
 
   test('verifies an email', async () => {

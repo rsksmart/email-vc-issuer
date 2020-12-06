@@ -1,11 +1,22 @@
-const express = require('express')
-const cors = require('cors')
-const nodemailer = require('nodemailer')
-const EthrDID = require('@rsksmart/ethr-did')
-const { setupService } = require('../api')
+import express from 'express'
+import cors from 'cors'
+import nodemailer from 'nodemailer'
+import EthrDID from '@rsksmart/ethr-did'
+import EmailVCIssuerInterface from '../model/EmailVCIssuerInterface'
+import { setupService } from '../api'
 
 const app = express()
 app.use(cors())
+
+export const issuer =  new EthrDID({
+  address: '0x7009cdcbe41dd62dd7e6ccfd8b76893207fbba68',
+  privateKey: '3b9c8ea990c87091eca8ed8e82edf73c6b1c37fe7640e95460cedff09bdf21ff',
+  method: 'ethr:rsk'
+})
+
+const decorateVerificationCode = (code: string) => `Verification code: ${code}`
+
+const emailVCIssuerInterface = new EmailVCIssuerInterface(issuer, decorateVerificationCode)
 
 // https://nodemailer.com/
 async function sendVerificationCode(to: string, text: string) {
@@ -33,16 +44,11 @@ async function sendVerificationCode(to: string, text: string) {
   console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
 }
 
-export const issuer =  new EthrDID({
-  address: '0x7009cdcbe41dd62dd7e6ccfd8b76893207fbba68',
-  privateKey: '3b9c8ea990c87091eca8ed8e82edf73c6b1c37fe7640e95460cedff09bdf21ff',
-  method: 'ethr:rsk'
-})
-
 setupService(app, {
-  issuer,
-  decorateVerificationCode: (code: string) => `Verification code: ${code}`,
+  emailVCIssuerInterface,
   sendVerificationCode
 })
 
-app.listen(3500, (port: string) => `App running at ${port}`)
+const port = 3500
+
+app.listen(port, () => console.log(`Email VC Issuer running at http://localhost:${port}`))

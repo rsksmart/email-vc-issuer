@@ -1,22 +1,20 @@
-import { Issuer } from 'did-jwt-vc'
 import { Express } from 'express'
 import bodyParser from 'body-parser'
-import EmailVCIssuerInterface, { DecorateVerificationCode } from '../model/EmailVCIssuerInterface'
+import EmailVCIssuerInterface from '../model/EmailVCIssuerInterface'
 
-export function setupService(app: Express, options: {
-  issuer: Issuer
-  decorateVerificationCode: DecorateVerificationCode,
+interface Options {
+  emailVCIssuerInterface: EmailVCIssuerInterface
   sendVerificationCode: (to: string, text: string) => Promise<void>
-}) {
-  const emailVCIssuerInterface = new EmailVCIssuerInterface(options.issuer, options.decorateVerificationCode)
+}
 
+export function setupService(app: Express, { emailVCIssuerInterface, sendVerificationCode }: Options) {
   app.post('/requestVerification/:did', bodyParser.json(), (req, res) => {
     const { did } = req.params
     const { emailAddress } = req.body
 
     const verificationCode = emailVCIssuerInterface.requestVerificationFor(did, emailAddress)
 
-    options.sendVerificationCode(emailAddress, verificationCode)
+    sendVerificationCode(emailAddress, verificationCode)
 
     res.status(200).send()
   })

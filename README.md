@@ -69,4 +69,10 @@ app.listen(3500)
 
 ## Front-end
 
-In `./front` folder you can find a sample front-end that operates with Metamask wallet to sign the required messages.
+React.js app integrating:
+1. Choose wallet using [`rLogin`](https://github.com/rsksmart/rLogin)
+2. Request email verification
+3. Sign email verification with wallet of choice
+4. Receive email Verifiable credential
+5. Store credential in Data vault using [`rif-data-vault`](https://github.com/rsksmart/rif-data-vault)
+

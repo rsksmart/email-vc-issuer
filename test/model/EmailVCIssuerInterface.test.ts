@@ -21,23 +21,23 @@ describe('EmailVCIssuerInterface', () => {
     expect(verifiableCredential.issuer.id).toEqual(issuer.did)
   })
 
-  test('fails on invalid signature', async () => {
+  test('fails on invalid signature', () => {
     const emailVCIssuerInterface = new EmailVCIssuerInterface(issuer, decorateVerificationCode)
 
     const verificationCode = emailVCIssuerInterface.requestVerificationFor(did, emailAddress)
 
     const sig = rpcPersonalSign(decorateVerificationCode(verificationCode), anotherPrivateKey)
 
-    expect(() => emailVCIssuerInterface.verify(did, sig)).toThrowError(INVALID_SIGNATURE_ERROR_MESSAGE)
+    return expect(() => emailVCIssuerInterface.verify(did, sig)).toThrowError(INVALID_SIGNATURE_ERROR_MESSAGE)
   })
 
-  test('fails on invalid verification code', async () => {
+  test('fails on invalid verification code', () => {
     const emailVCIssuerInterface = new EmailVCIssuerInterface(issuer, decorateVerificationCode)
 
     emailVCIssuerInterface.requestVerificationFor(did, emailAddress)
 
     const sig = rpcPersonalSign(decorateVerificationCode('INVALID VERIFICATION CODE'), privateKey)
 
-    expect(() => emailVCIssuerInterface.verify(did, sig)).toThrowError(INVALID_SIGNATURE_ERROR_MESSAGE)
+    return expect(() => emailVCIssuerInterface.verify(did, sig)).toThrowError(INVALID_SIGNATURE_ERROR_MESSAGE)
   })
 })

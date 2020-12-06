@@ -6,7 +6,7 @@
   "scripts": {
     "test": "npx jest",
     "build": "npx tsc",
-    "serve:test": "npm run build && concurrently \"node dist/scripts/test.js\" \"npx serve front\""
+    "serve:test": "npm run build && concurrently \"node dist/scripts/testing.js\" \"npx serve front\""
   },
   "author": "",
   "license": "ISC",

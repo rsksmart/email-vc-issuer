@@ -24,6 +24,8 @@ npm i
 npm run serve:test
 ```
 
+When email verification is requested the email is opened using the link logged in the terminal. It does not send real emails.
+
 ## Usage
 
 To use it you can set up the Verifiable Credential issuer and a decoration for the verification code. Create a script in `./back/scripts` folder as follows

@@ -3,9 +3,9 @@ import request from 'supertest'
 import { verifyCredential } from 'did-jwt-vc'
 import { rpcPersonalSign } from './utils'
 import { issuer, resolver, decorateVerificationCode, did, privateKey, emailAddress, anotherPrivateKey } from './mocks'
-import { setupService } from '../api'
-import { INVALID_SIGNATURE_ERROR_MESSAGE } from '../model/EmailVCIssuerInterface'
-import { CODE_NOT_GENERATED_ERROR_MESSAGE } from '../model/VerificationCodeChecker'
+import { setupService } from '../src/api'
+import { INVALID_SIGNATURE_ERROR_MESSAGE } from '../src/model/EmailVCIssuerInterface'
+import { CODE_NOT_GENERATED_ERROR_MESSAGE } from '../src/model/VerificationCodeChecker'
 
 describe('service', function (this: {
   sendVerificationCode: (content: string) => Promise<void>

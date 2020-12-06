@@ -1,4 +1,4 @@
-import VerificationCodeChecker, { CODE_NOT_GENERATED_ERROR_MESSAGE } from '../../model/VerificationCodeChecker'
+import VerificationCodeChecker, { CODE_NOT_GENERATED_ERROR_MESSAGE } from '../../src/model/VerificationCodeChecker'
 
 describe('VerificationCodeChecker', () => {
   test('checks the code is correct', () => {

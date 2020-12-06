@@ -1,4 +1,4 @@
-import PersonalSignRecoverer from '../../model/PersonalSignRecoverer'
+import PersonalSignRecoverer from '../../src/model/PersonalSignRecoverer'
 
 describe('PersonalSignRecoverer', () => {
   test('recovers the address from hex personal_sign', () => {

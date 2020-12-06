@@ -1,5 +1,5 @@
 import { Issuer } from 'did-jwt-vc'
-import { Express, Request, Response, NextFunction } from 'express'
+import { Express } from 'express'
 import bodyParser from 'body-parser'
 import EmailVCIssuerInterface, { DecorateVerificationCode } from '../model/EmailVCIssuerInterface'
 

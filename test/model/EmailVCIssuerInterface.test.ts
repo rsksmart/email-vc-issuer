@@ -1,5 +1,5 @@
 import { verifyCredential } from 'did-jwt-vc'
-import EmailVCIssuerInterface, { INVALID_SIGNATURE_ERROR_MESSAGE } from '../../model/EmailVCIssuerInterface'
+import EmailVCIssuerInterface, { INVALID_SIGNATURE_ERROR_MESSAGE } from '../../src/model/EmailVCIssuerInterface'
 import { rpcPersonalSign } from '../utils'
 import { decorateVerificationCode, privateKey, did, emailAddress, anotherPrivateKey } from '../mocks'
 import { issuer, resolver } from '../mocks'

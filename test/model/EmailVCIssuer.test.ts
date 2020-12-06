@@ -2,7 +2,7 @@ import Ajv from 'ajv'
 import emailCredentialSchema from '@rsksmart/vc-json-schemas/schema/EmailCredentialSchema/v1.0/schema.json'
 import { verifyCredential } from 'did-jwt-vc'
 import EmailVCIssuer from '../../src/model/EmailVCIssuer'
-import { issuer, resolver } from '../mocks'
+import { issuer, resolver, did, emailAddress } from '../mocks'
 
 const ajv = new Ajv()
 const validateEmailSchema = ajv.compile(emailCredentialSchema.schema)
@@ -11,8 +11,6 @@ describe('EmailVCIssuer', () => {
   test('should issue an EmailCredential v0.1 verifiable credential', async () => {
     const emailVCIssuer = new EmailVCIssuer(issuer)
 
-    const did = 'did:ethr:rsk:0x87eb390df1e05ef0560e387206f5997034cd6f28'
-    const emailAddress = 'email@test.com'
     const jwt = await emailVCIssuer.createVerifiableCredentialFor(did, emailAddress)
 
     const { verifiableCredential } = await verifyCredential(jwt, resolver)

@@ -4,15 +4,18 @@ import { rpcPersonalSign } from '../utils'
 import { decorateVerificationCode, privateKey, did, emailAddress, anotherPrivateKey } from '../mocks'
 import { issuer, resolver } from '../mocks'
 
-describe('EmailVCIssuerInterface', () => {
+describe('EmailVCIssuerInterface', function (this: {
+  emailVCIssuerInterface: EmailVCIssuerInterface
+}) {
+  beforeEach(() => {
+    this.emailVCIssuerInterface = new EmailVCIssuerInterface(issuer, decorateVerificationCode)
+  })
   test('issues verifiable credential when verification code is signed', async () => {
-    const emailVCIssuerInterface = new EmailVCIssuerInterface(issuer, decorateVerificationCode)
-
-    const verificationCode = emailVCIssuerInterface.requestVerificationFor(did, emailAddress)
+    const verificationCode = this.emailVCIssuerInterface.requestVerificationFor(did, emailAddress)
 
     const sig = rpcPersonalSign(decorateVerificationCode(verificationCode), privateKey)
 
-    const jwt = await emailVCIssuerInterface.verify(did, sig)
+    const jwt = await this.emailVCIssuerInterface.verify(did, sig)
 
     const { verifiableCredential } = await verifyCredential(jwt, resolver)
 
@@ -22,22 +25,22 @@ describe('EmailVCIssuerInterface', () => {
   })
 
   test('fails on invalid signature', () => {
-    const emailVCIssuerInterface = new EmailVCIssuerInterface(issuer, decorateVerificationCode)
+    expect.assertions(1)
 
-    const verificationCode = emailVCIssuerInterface.requestVerificationFor(did, emailAddress)
+    const verificationCode = this.emailVCIssuerInterface.requestVerificationFor(did, emailAddress)
 
     const sig = rpcPersonalSign(decorateVerificationCode(verificationCode), anotherPrivateKey)
 
-    return expect(() => emailVCIssuerInterface.verify(did, sig)).toThrowError(INVALID_SIGNATURE_ERROR_MESSAGE)
+    return expect(() => this.emailVCIssuerInterface.verify(did, sig)).toThrowError(INVALID_SIGNATURE_ERROR_MESSAGE)
   })
 
   test('fails on invalid verification code', () => {
-    const emailVCIssuerInterface = new EmailVCIssuerInterface(issuer, decorateVerificationCode)
+    expect.assertions(1)
 
-    emailVCIssuerInterface.requestVerificationFor(did, emailAddress)
+    this.emailVCIssuerInterface.requestVerificationFor(did, emailAddress)
 
     const sig = rpcPersonalSign(decorateVerificationCode('INVALID VERIFICATION CODE'), privateKey)
 
-    return expect(() => emailVCIssuerInterface.verify(did, sig)).toThrowError(INVALID_SIGNATURE_ERROR_MESSAGE)
+    return expect(() => this.emailVCIssuerInterface.verify(did, sig)).toThrowError(INVALID_SIGNATURE_ERROR_MESSAGE)
   })
 })

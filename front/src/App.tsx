@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import RLogin from '@rsksmart/rlogin'
 import WalletConnectProvider from '@walletconnect/web3-provider'
+import DataVaultWebClient from '@rsksmart/ipfs-cpinner-client'
 import Nav from './Nav'
 
 const backUrl = 'http://localhost:3500'
@@ -35,27 +36,42 @@ export const rLogin = new RLogin({
 })
 
 const handleInputChangeFactory = (setter: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => setter(e.target.value)
+const accountToDid = (account: string) => `did:ethr:rsk:testnet:${account}`
 
 function App() {
   const [error, setError] = useState('')
   const [provider, setProvider] = useState<Web3Provider | null>(null)
+  const [dataVault, setDataVault] = useState<DataVaultWebClient | null>(null)
   const [account, setAccount] = useState('')
   const [emailAddress, setEmailAddress] = useState('')
   const [wasEmailSent, setWasEmailSent] = useState(false)
   const [verificationCode, setVerificationCode] = useState('')
   const [jwt, setJwt] = useState('')
+  const [savedInDataVault, setSavedInDataVault] = useState(false)
 
-  const did = !!account ? `did:ethr:rsk:testnet:${account}` : ''
+  const did = !!account ? accountToDid(account) : ''
 
   const handleError = (error: Error) => setError(error ? error.message : 'Unhandled error')
 
   const enable = () => rLogin.connect()
     .then((provider: Web3Provider) => {
       setProvider(provider)
-      return provider.request({ method: 'eth_accounts' })
-    })
-    .then((accounts: string[]) => {
-      setAccount(accounts[0])
+
+      provider.request({ method: 'eth_accounts' }).then((accounts: string[]) => {
+        setAccount(accounts[0])
+        const did = accountToDid(accounts[0])
+
+        console.log(did)
+
+        const dataVault = new DataVaultWebClient({
+          serviceUrl: 'https://identity.staging.rifcomputing.net',
+          serviceDid: 'did:ethr:rsk:testnet:0x285B30492a3F444d78f75261A35cB292Fc8F41A6',
+          did,
+          rpcPersonalSign: (data: string) => provider!.request({ method: 'personal_sign', params: [accounts[0], data] })
+        })
+
+        setDataVault(dataVault)
+      })
     })
     .catch(handleError)
 
@@ -96,6 +112,12 @@ function App() {
     .then(({ jwt }: { jwt: string }) => { setJwt(jwt) })
     .catch(handleError)
 
+  const saveInDataVault = () => dataVault!.create({ key: 'EmailVerifiableCredential', content: jwt })
+    .then(() => {
+      setSavedInDataVault(true)
+    })
+    .catch(handleError)
+
 
   return <div>
     <Nav />
@@ -128,6 +150,13 @@ function App() {
             </div>
           </div>
           <p style={{ wordWrap: 'break-word' }}>{jwt}</p>
+
+          <h3>4. Store it in your Data Vault</h3>
+          <button onClick={saveInDataVault} disabled={!jwt} className="btn btn-primary">save</button>
+          <p style={{ wordWrap: 'break-word' }}>{savedInDataVault && 'Saved!'}</p>
+
+          <h3>5. Validate in RIF Id Manager</h3>
+          <p>Go to the <a href="https://rsksmart.github.io/rif-identity-manager/" target="_blank" rel="noreferrer">RIF Identity Manager</a></p>
         </div>
       </div>
     </div>

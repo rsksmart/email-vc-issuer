@@ -6,6 +6,12 @@
     Email Verifiable Credential issuer.
 </p>
 
+<p align="middle">
+  <a href="https://github.com/rsksmart/email-vc-issuer/actions?query=workflow%3Atest">
+    <img src="https://github.com/rsksmart/email-vc-issuer/workflows/test/badge.svg" />
+  </a>
+</p>
+
 This service allows the controller of a decentralized identity to verify your email address.
 
 ## Usage

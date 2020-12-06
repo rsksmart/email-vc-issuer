@@ -1,9 +1,11 @@
 const express = require('express')
-const nodemailer = require("nodemailer")
+const cors = require('cors')
+const nodemailer = require('nodemailer')
 const EthrDID = require('@rsksmart/ethr-did')
 const { setupService } = require('../api')
 
 const app = express()
+app.use(cors())
 
 // https://nodemailer.com/
 async function sendVerificationCode(to: string, text: string) {

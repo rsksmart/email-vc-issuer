@@ -10,6 +10,12 @@
   <a href="https://github.com/rsksmart/email-vc-issuer/actions?query=workflow%3Atest">
     <img src="https://github.com/rsksmart/email-vc-issuer/workflows/test/badge.svg" />
   </a>
+  <a href="https://lgtm.com/projects/g/rsksmart/email-vc-issuer/alerts/">
+    <img src="https://img.shields.io/lgtm/alerts/github/rsksmart/email-vc-issuer" alt="alerts">
+  </a>
+  <a href="https://lgtm.com/projects/g/rsksmart/email-vc-issuer/context:javascript">
+    <img src="https://img.shields.io/lgtm/grade/javascript/github/rsksmart/email-vc-issuer">
+  </a>
 </p>
 
 This service allows the controller of a decentralized identity to verify your email address.

@@ -7,7 +7,7 @@
   "scripts": {
     "test": "cd back && npm test && cd ../front && yarn test --watchAll=false",
     "setup": "cd back && npm i && cd .. && cd front && yarn",
-    "serve:test": "concurrently \"cd back && npm run serve:test\" \"cd front && yarn start\""
+    "serve:test": "concurrently \"cd back && npm run serve\" \"cd front && yarn start\""
   },
   "repository": {
     "type": "git",

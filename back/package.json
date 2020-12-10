@@ -7,7 +7,7 @@
   "scripts": {
     "test": "npx jest --coverage",
     "build": "npx tsc",
-    "serve:test": "npm run build && node dist/index.js"
+    "serve": "npm run build && node dist/index.js"
   },
   "author": "",
   "license": "ISC",

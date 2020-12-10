@@ -1,18 +1,26 @@
 import express from 'express'
 import cors from 'cors'
 import nodemailer from 'nodemailer'
-import EthrDID from '@rsksmart/ethr-did'
+import { rskDIDFromPrivateKey, rskTestnetDIDFromPrivateKey } from '@rsksmart/rif-id-ethr-did'
 import EmailVCIssuerInterface from '../model/EmailVCIssuerInterface'
 import { setupService } from '../api'
+import dotenv from 'dotenv'
+import { loggerFactory } from '@rsksmart/rif-node-utils'
+
+dotenv.config()
+
+const logger = loggerFactory({
+  env: process.env.NODE_ENV || 'dev',
+  infoFile: process.env.LOG_FILE || './log/email-vc-issuer.log',
+  errorFile: process.env.LOG_ERROR_FILE || './log/email-vc-issuer.log'
+})('email-vc-issuer')
 
 const app = express()
 app.use(cors())
 
-export const issuer =  new EthrDID({
-  address: '0x7009cdcbe41dd62dd7e6ccfd8b76893207fbba68',
-  privateKey: '3b9c8ea990c87091eca8ed8e82edf73c6b1c37fe7640e95460cedff09bdf21ff',
-  method: 'ethr:rsk'
-})
+const privateKey = process.env.PRIVATE_KEY!
+const issuer = process.env.networkName === 'rsk:testnet' ? rskTestnetDIDFromPrivateKey()(privateKey) : rskDIDFromPrivateKey()(privateKey)
+logger.info(`Service DID: ${issuer.did}`)
 
 const decorateVerificationCode = (code: string) => `Verification code: ${code}`
 
@@ -20,28 +28,25 @@ const emailVCIssuerInterface = new EmailVCIssuerInterface(issuer, decorateVerifi
 
 // https://nodemailer.com/
 async function sendVerificationCode(to: string, text: string) {
-  let testAccount = await nodemailer.createTestAccount();
-
   let transporter = nodemailer.createTransport({
-    host: "smtp.ethereal.email",
-    port: 587,
-    secure: false,
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT),
+    secure: true,
     auth: {
-      user: testAccount.user,
-      pass: testAccount.pass,
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
     },
   });
 
   let info = await transporter.sendMail({
-    from: '"Email Verifier" <foo@example.com>',
+    from: `"Email Verifier" <${process.env.SMTP_USER}>`,
     to,
-    subject: "VC Email Verification",
+    subject: 'VC Email Verification',
     text,
     html: `<p>${text}</p>`,
   });
 
-  console.log("Message sent: %s", info.messageId);
-  console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+  logger.info(`Email sent: ${info.messageId}`)
 }
 
 setupService(app, {

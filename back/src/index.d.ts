@@ -1,2 +1,2 @@
-declare module '@rsksmart/ethr-did'
 declare module '@rsksmart/vc-json-schemas'
+declare module '@rsksmart/ethr-id-ethr-did'

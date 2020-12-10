@@ -2,8 +2,8 @@ import express from 'express'
 import cors from 'cors'
 import nodemailer from 'nodemailer'
 import { rskDIDFromPrivateKey, rskTestnetDIDFromPrivateKey } from '@rsksmart/rif-id-ethr-did'
-import EmailVCIssuerInterface from '../model/EmailVCIssuerInterface'
-import { setupService } from '../api'
+import EmailVCIssuerInterface from './model/EmailVCIssuerInterface'
+import { setupService } from './api'
 import dotenv from 'dotenv'
 import { loggerFactory } from '@rsksmart/rif-node-utils'
 
@@ -54,6 +54,6 @@ setupService(app, {
   sendVerificationCode
 })
 
-const port = 3500
+const port = process.env.PORT || 5108
 
 app.listen(port, () => console.log(`Email VC Issuer running at http://localhost:${port}`))

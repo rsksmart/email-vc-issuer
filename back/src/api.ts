@@ -1,6 +1,6 @@
 import { Express } from 'express'
 import bodyParser from 'body-parser'
-import EmailVCIssuerInterface from '../model/EmailVCIssuerInterface'
+import EmailVCIssuerInterface from './model/EmailVCIssuerInterface'
 
 interface Options {
   emailVCIssuerInterface: EmailVCIssuerInterface

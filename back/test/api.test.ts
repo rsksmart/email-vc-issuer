@@ -45,7 +45,7 @@ describe('service', function (this: {
 
     await request(this.app).post(`/verify/${did}`).send({ sig }).then((res: any) => {
       expect(res.statusCode).toEqual(500)
-      expect(res.text).toEqual(INVALID_SIGNATURE_ERROR_MESSAGE)
+      expect(res.text).toEqual(escape(INVALID_SIGNATURE_ERROR_MESSAGE))
     })
   })
 
@@ -56,7 +56,7 @@ describe('service', function (this: {
 
     await request(this.app).post(`/verify/${did}`).send({ sig }).then((res: any) => {
       expect(res.statusCode).toEqual(500)
-      expect(res.text).toEqual(INVALID_SIGNATURE_ERROR_MESSAGE)
+      expect(res.text).toEqual(escape(INVALID_SIGNATURE_ERROR_MESSAGE))
     })
   })
 
@@ -65,7 +65,7 @@ describe('service', function (this: {
 
     await request(this.app).post(`/verify/${did}`).send({ sig }).then((res: any) => {
       expect(res.statusCode).toEqual(500)
-      expect(res.text).toEqual(CODE_NOT_GENERATED_ERROR_MESSAGE)
+      expect(res.text).toEqual(escape(CODE_NOT_GENERATED_ERROR_MESSAGE))
     })
   })
 })

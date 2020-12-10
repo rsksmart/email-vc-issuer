@@ -27,7 +27,7 @@ export function setupService(app: Express, { emailVCIssuerInterface, sendVerific
       const jwt = await emailVCIssuerInterface.verify(did, sig)
       res.status(200).send({ jwt })
     } catch (e) {
-      res.status(500).send(e.message)
+      res.status(500).send(escape(e.message))
     }
   })
 }

@@ -6,6 +6,7 @@ import EmailVCIssuerInterface from './model/EmailVCIssuerInterface'
 import { setupService } from './api'
 import dotenv from 'dotenv'
 import { loggerFactory } from '@rsksmart/rif-node-utils'
+import rateLimit from 'express-rate-limit'
 
 dotenv.config()
 
@@ -17,6 +18,13 @@ const logger = loggerFactory({
 
 const app = express()
 app.use(cors())
+
+const limiter = rateLimit({
+  windowMs: 1000, // 1 minute
+  max: 5
+});
+ 
+app.use(limiter);
 
 const privateKey = process.env.PRIVATE_KEY!
 const issuer = process.env.networkName === 'rsk:testnet' ? rskTestnetDIDFromPrivateKey()(privateKey) : rskDIDFromPrivateKey()(privateKey)

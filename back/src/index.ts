@@ -7,6 +7,7 @@ import { setupService } from './api'
 import dotenv from 'dotenv'
 import { loggerFactory } from '@rsksmart/rif-node-utils'
 import rateLimit from 'express-rate-limit'
+import SMTPTransport from 'nodemailer/lib/smtp-transport'
 
 dotenv.config()
 
@@ -36,18 +37,34 @@ const emailVCIssuerInterface = new EmailVCIssuerInterface(issuer, decorateVerifi
 
 // https://nodemailer.com/
 async function sendVerificationCode(to: string, text: string) {
-  let transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT),
-    secure: true,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
+  let transport: SMTPTransport.Options
+  let printMailUrl = false
 
-  let info = await transporter.sendMail({
-    from: `"Email Verifier" <${process.env.SMTP_USER}>`,
+  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env
+
+  if (SMTP_PORT && SMTP_HOST && SMTP_USER && SMTP_PASS) {
+    transport = {
+      host: SMTP_HOST,
+      port: Number(SMTP_PORT),
+      secure: true,
+      auth: { user: SMTP_USER, pass: SMTP_PASS }
+    }
+  } else {
+    // use ethereal
+    const testSmtp = await nodemailer.createTestAccount()
+
+    transport = {
+      ...testSmtp.smtp,
+      auth: { user: testSmtp.user, pass: testSmtp.pass }
+    }
+
+    printMailUrl = true
+  }
+
+  const transporter = nodemailer.createTransport(transport);
+
+  const info = await transporter.sendMail({
+    from: `"Email Verifier" <${transport.auth?.user}>`,
     to,
     subject: 'VC Email Verification',
     text,
@@ -55,6 +72,7 @@ async function sendVerificationCode(to: string, text: string) {
   });
 
   logger.info(`Email sent: ${info.messageId}`)
+  if (printMailUrl) logger.info(`Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
 }
 
 setupService(app, { emailVCIssuerInterface, sendVerificationCode }, logger)

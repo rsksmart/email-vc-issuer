@@ -1,0 +1,14 @@
+version: "3"
+
+services:
+    rif-identity-email-vc-issuer:
+        image: rif-identity-email-vc-issuer:${DOCKER_TAG:-latest}
+        build:
+            context: .
+            dockerfile: Dockerfile
+        env_file: .env
+        volumes:
+            - "/var/db/rif-identity/email-vc-issuer:/app/db"
+            - "/var/log/rif-identity/email-vc-issuer:/app/log"
+        ports:
+            - "5108:5108"

@@ -5,12 +5,24 @@
   "description": "Email VC Issuer backend",
   "main": "dist/scripts/testing.ts",
   "scripts": {
-    "test": "npx jest",
+    "test": "npx jest --coverage",
     "build": "npx tsc",
-    "serve:test": "npm run build && node dist/scripts/testing.js"
+    "serve": "npm run build && node dist/index.js"
   },
   "author": "",
   "license": "ISC",
+  "dependencies": {
+    "@rsksmart/rif-id-ethr-did": "^0.1.0",
+    "@rsksmart/rif-node-utils": "0.0.3",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "did-jwt-vc": "^1.0.6",
+    "dotenv": "^8.2.0",
+    "ethereumjs-util": "^7.0.7",
+    "express": "^4.17.1",
+    "express-rate-limit": "^5.2.3",
+    "nodemailer": "^6.4.16"
+  },
   "devDependencies": {
     "@rsksmart/vc-json-schemas": "^1.0.0",
     "@types/ajv": "^1.0.0",
@@ -27,14 +39,5 @@
     "supertest": "^6.0.1",
     "ts-jest": "^26.4.4",
     "typescript": "^4.1.2"
-  },
-  "dependencies": {
-    "@rsksmart/ethr-did": "^1.1.1-beta.1",
-    "body-parser": "^1.19.0",
-    "cors": "^2.8.5",
-    "did-jwt-vc": "^1.0.6",
-    "ethereumjs-util": "^7.0.7",
-    "express": "^4.17.1",
-    "nodemailer": "^6.4.16"
   }
 }

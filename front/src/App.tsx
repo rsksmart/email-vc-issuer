@@ -4,7 +4,7 @@ import WalletConnectProvider from '@walletconnect/web3-provider'
 import DataVaultWebClient from '@rsksmart/ipfs-cpinner-client'
 import Nav from './Nav'
 
-const backUrl = 'http://localhost:3500'
+const backUrl = 'http://localhost:5108'
 
 declare global {
   interface Window {

@@ -1,6 +1,6 @@
 import { Resolver } from 'did-resolver'
 import { getResolver } from 'ethr-did-resolver'
-import EthrDID from '@rsksmart/ethr-did'
+import { rskTestnetDIDFromPrivateKey } from '@rsksmart/rif-id-ethr-did'
 
 export const privateKey = Buffer.from('876d78e89797cf2cf9441e4d0d111589cd8b36a20485d4073d03193e2f3d4861', 'hex')
 export const did = 'did:ethr:rsk:0x87eb390df1e05ef0560e387206f5997034cd6f28'
@@ -12,14 +12,10 @@ export const anotherPrivateKey = Buffer.from('8586abcdf499527f33d4f4ecdd8c785066
 
 export const decorateVerificationCode = (code: string) => `Verification code: ${code}`
 
-export const issuer =  new EthrDID({
-  address: '0x7009cdcbe41dd62dd7e6ccfd8b76893207fbba68',
-  privateKey: '3b9c8ea990c87091eca8ed8e82edf73c6b1c37fe7640e95460cedff09bdf21ff',
-  method: 'ethr:rsk'
-})
+export const issuer = rskTestnetDIDFromPrivateKey()('3b9c8ea990c87091eca8ed8e82edf73c6b1c37fe7640e95460cedff09bdf21ff')
 
 export const resolver = new Resolver(getResolver({
   networks: [
-    { name: 'rsk', registry: "0xdca7ef03e98e0dc2b855be647c39abe984fcf21b", rpcUrl: "https://did.rsk.co:4444" }
+    { name: 'rsk:testnet', registry: '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b', rpcUrl: 'https://did.rsk.co:4444' }
   ]
 }))

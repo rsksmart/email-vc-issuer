@@ -20,16 +20,55 @@
 
 This service allows the controller of a decentralized identity to verify your email address.
 
-## Usage
-
-1. User sends `POST /requestVerification/:did { emailAddress }`
-2. Service sends email to `emailAddress` with a `verificationCode`
-3. User opens mailbox, copies verification code, signs message including the verification code and sends `POST /verify/:did { sig }`
-4. Services recovers signer address from `sig`, and compares `verificationCode` to the sent code. If matches, issues an [Email Verifiable Credential](https://github.com/rsksmart/vc-json-schemas/tree/main/schema/EmailCredentialSchema/v1.0)
-
 ## Try it
 
-You can run the service locally with a dummy email sender
+### Configure
+
+Create an `.env` file under `./back` folder with the following:
+
+```
+PRIVATE_KEY=private key associated to the service. Is used to sign the email VCs
+```
+
+Optionally you can set:
+
+```
+SMTP_HOST=host of the mail server
+SMTP_PORT=port of the mail server
+SMTP_USER=user to log in to the mail server. Will be used to set the from of the email
+SMTP_PASS=password to log in to the mail server
+LOG_FILE=relative path of the log file
+LOG_ERROR_FILE=relative path of the error log file
+NETWORK_NAME=rsk:testnet or rsk
+PORT=port where the service will be served
+```
+
+> To run in production you will have to set SMTP variables. Ethereal is a testing framework.
+
+Default values: 
+
+```
+SMTP_HOST=dynamically created using https://ethereal.email/
+SMTP_PORT=dynamically created using https://ethereal.email/
+SMTP_USER=dynamically created using https://ethereal.email/
+SMTP_PASS=dynamically created using https://ethereal.email/
+LOG_FILE=./log/email-vc-issuer.log
+LOG_ERROR_FILE=./log/email-vc-issuer.error.log
+NETWORK_NAME=rsk
+PORT=5108
+```
+
+Example:
+
+```
+PRIVATE_KEY=3b9c8ea990c87091eca8ed8e82edf73c6b1c37fe7640e95460cedff09bdf21ff
+```
+
+NOTE: With this `.env` config file, the email will not be sent to the given address, it will print an url in the console with the URL to preview the "sent" email
+
+### Run it
+
+From the root folder, run the following
 
 ```
 npm i
@@ -37,50 +76,26 @@ npm run setup
 npm run serve:test
 ```
 
-When email verification is requested the email is opened using the link logged in the terminal. It does not send real emails.
+## Backend description
 
-## Usage
+1. User sends `POST /requestVerification/:did { emailAddress }`
+2. Service sends email to `emailAddress` with a `verificationCode`
+3. User opens mailbox, copies verification code, signs message including the verification code and sends `POST /verify/:did { sig }`
+4. Services recovers signer address from `sig`, and compares `verificationCode` to the sent code. If matches, issues an [Email Verifiable Credential](https://github.com/rsksmart/vc-json-schemas/tree/main/schema/EmailCredentialSchema/v1.0)
 
-To use it you can set up the Verifiable Credential issuer and a decoration for the verification code. Create a script in `./back/scripts` folder as follows
+### Run it with Docker
 
-```typescript
-import EthrDID from '@rsksmart/ethr-did'
-import EmailVCIssuerInterface from '../model/EmailVCIssuerInterface'
-import { setupService } from '../api'
+Create the `.env` file with the above guideline, and then run the following
 
-const app = express()
-
-// setup your app: cors, authentication, etc.
-
-// create the issuer - do not use this keys for production
-export const issuer =  new EthrDID({
-  address: '0x7009cdcbe41dd62dd7e6ccfd8b76893207fbba68',
-  privateKey: '3b9c8ea990c87091eca8ed8e82edf73c6b1c37fe7640e95460cedff09bdf21ff',
-  method: 'ethr:rsk'
-})
-
-// create a decoration for the verification code in their wallet
-// user should sign the decorated message - this improves user experience
-const decorateVerificationCode = (code: string) => `Verification code: ${code}`
-
-// create the interface
-const emailVCIssuerInterface = new EmailVCIssuerInterface(issuer, decorateVerificationCode)
-
-async function sendVerificationCode(to: string, text: string) {
-    // your email sender
-}
-
-// setup the service api
-setupService(app, {
-  emailVCIssuerInterface,
-  sendVerificationCode
-})
-
-// run!
-app.listen(3500)
+```
+cd back/
+docker-compose build
+docker-compose up -d
 ```
 
-## Front-end
+It will expose the api in the PORT described in the `.env` file
+
+## Frontend description
 
 React.js app integrating:
 1. Choose wallet using [`rLogin`](https://github.com/rsksmart/rLogin)

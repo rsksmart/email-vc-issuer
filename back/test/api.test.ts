@@ -6,6 +6,9 @@ import { issuer, resolver, decorateVerificationCode, did, privateKey, emailAddre
 import { setupService } from '../src/api'
 import EmailVCIssuerInterface, { INVALID_SIGNATURE_ERROR_MESSAGE } from '../src/model/EmailVCIssuerInterface'
 import { CODE_NOT_GENERATED_ERROR_MESSAGE } from '../src/model/VerificationCodeChecker'
+import { Logger } from '@rsksmart/rif-node-utils/lib/logger'
+
+const mockedLogger = { info: () => {}, error: () => {} } as unknown as Logger
 
 describe('service', function (this: {
   sendVerificationCode: (to: string, text: string) => Promise<void>
@@ -20,7 +23,7 @@ describe('service', function (this: {
   beforeEach(() => {
     this.app = express()
     const emailVCIssuerInterface = new EmailVCIssuerInterface(issuer, decorateVerificationCode)
-    setupService(this.app, { emailVCIssuerInterface, sendVerificationCode: this.sendVerificationCode })
+    setupService(this.app, { emailVCIssuerInterface, sendVerificationCode: this.sendVerificationCode }, mockedLogger)
   })
 
   test('verifies an email', async () => {

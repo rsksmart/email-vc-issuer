@@ -49,10 +49,7 @@ async function sendVerificationCode(to: string, text: string) {
   logger.info(`Email sent: ${info.messageId}`)
 }
 
-setupService(app, {
-  emailVCIssuerInterface,
-  sendVerificationCode
-})
+setupService(app, { emailVCIssuerInterface, sendVerificationCode }, logger)
 
 const port = process.env.PORT || 5108
 

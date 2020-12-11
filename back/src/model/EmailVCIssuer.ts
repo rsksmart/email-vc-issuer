@@ -22,7 +22,7 @@ export default class {
           id: 'did:ethr:rsk:0x8a32da624dd9fad8bf4f32d9456f374b60d9ad28;id=1eb2af6b-0dee-6090-cb55-0ed093f9b026;version=1.0',
           type: 'JsonSchemaValidator2018'
         },
-        'credentialSubject': { emailAddress },
+        credentialSubject: { emailAddress },
       }
     }, this.issuer)
   }

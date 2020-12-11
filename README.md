@@ -27,7 +27,12 @@ This service allows the controller of a decentralized identity to verify your em
 Create an `.env` file under `./back` folder with the following:
 
 ```
-PRIVATE_KEY=private key associated to the service. Is used to sign the email VCs. REQUIRED
+PRIVATE_KEY=private key associated to the service. Is used to sign the email VCs
+```
+
+Optionally you can set:
+
+```
 SMTP_HOST=host of the mail server
 SMTP_PORT=port of the mail server
 SMTP_USER=user to log in to the mail server. Will be used to set the from of the email
@@ -37,6 +42,8 @@ LOG_ERROR_FILE=relative path of the error log file
 NETWORK_NAME=rsk:testnet or rsk
 PORT=port where the service will be served
 ```
+
+> To run in production you will have to set SMTP variables. Ethereal is a testing framework.
 
 Default values: 
 

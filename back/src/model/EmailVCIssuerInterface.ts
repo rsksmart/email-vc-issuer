@@ -3,7 +3,7 @@ import VerificationCodeChecker from './VerificationCodeChecker'
 import PersonalSignRecoverer from './PersonalSignRecoverer'
 import EmailVCIssuer from './EmailVCIssuer'
 import IssuedEmailVC from './entities/issued-vc'
-import { Connection, Repository } from 'typeorm'
+import { Connection } from 'typeorm'
 
 export type DecorateVerificationCode = (verificationCode: string) => string
 

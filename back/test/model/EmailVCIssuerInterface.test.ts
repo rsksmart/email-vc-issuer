@@ -25,7 +25,7 @@ describe('EmailVCIssuerInterface', function (this: {
   afterAll(() => deleteDatabase(this.dbConnection, database))
 
   test('issues verifiable credential when verification code is signed', async () => {
-    const verificationCode = this.emailVCIssuerInterface.requestVerificationFor(did, emailAddress)
+    const verificationCode = await this.emailVCIssuerInterface.requestVerificationFor(did, emailAddress)
 
     const sig = rpcPersonalSign(decorateVerificationCode(verificationCode), privateKey)
 
@@ -38,23 +38,23 @@ describe('EmailVCIssuerInterface', function (this: {
     expect(verifiableCredential.issuer.id).toEqual(issuer.did)
   })
 
-  test('fails on invalid signature', () => {
+  test('fails on invalid signature', async () => {
     expect.assertions(1)
 
-    const verificationCode = this.emailVCIssuerInterface.requestVerificationFor(did, emailAddress)
+    const verificationCode = await this.emailVCIssuerInterface.requestVerificationFor(did, emailAddress)
 
     const sig = rpcPersonalSign(decorateVerificationCode(verificationCode), anotherPrivateKey)
 
-    return expect(() => this.emailVCIssuerInterface.verify(did, sig)).toThrowError(INVALID_SIGNATURE_ERROR_MESSAGE)
+    return expect(() => this.emailVCIssuerInterface.verify(did, sig)).rejects.toThrowError(INVALID_SIGNATURE_ERROR_MESSAGE)
   })
 
-  test('fails on invalid verification code', () => {
+  test('fails on invalid verification code', async () => {
     expect.assertions(1)
 
-    this.emailVCIssuerInterface.requestVerificationFor(did, emailAddress)
+    await this.emailVCIssuerInterface.requestVerificationFor(did, emailAddress)
 
     const sig = rpcPersonalSign(decorateVerificationCode('INVALID VERIFICATION CODE'), privateKey)
 
-    return expect(() => this.emailVCIssuerInterface.verify(did, sig)).toThrowError(INVALID_SIGNATURE_ERROR_MESSAGE)
+    return expect(() => this.emailVCIssuerInterface.verify(did, sig)).rejects.toThrowError(INVALID_SIGNATURE_ERROR_MESSAGE)
   })
 })

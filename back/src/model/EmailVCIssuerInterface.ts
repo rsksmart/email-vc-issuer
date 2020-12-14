@@ -2,6 +2,8 @@ import { Issuer } from 'did-jwt-vc'
 import VerificationCodeChecker from './VerificationCodeChecker'
 import PersonalSignRecoverer from './PersonalSignRecoverer'
 import EmailVCIssuer from './EmailVCIssuer'
+import IssuedEmailVC from './entities/issued-vc'
+import { Connection, Repository } from 'typeorm'
 
 export type DecorateVerificationCode = (verificationCode: string) => string
 
@@ -14,10 +16,10 @@ export default class {
   decorateVerificationCode: DecorateVerificationCode
   lastEmailRequest: Map<string, string>
 
-  constructor(issuer: Issuer, decorateVerificationCode: DecorateVerificationCode) {
+  constructor(issuer: Issuer, dbConnection: Connection, decorateVerificationCode: DecorateVerificationCode) {
     this.verificationCodeChecker = new VerificationCodeChecker()
     this.personalSignRecoverer = new PersonalSignRecoverer()
-    this.emailVCIssuer = new EmailVCIssuer(issuer)
+    this.emailVCIssuer = new EmailVCIssuer(issuer, dbConnection.getRepository(IssuedEmailVC))
     this.decorateVerificationCode = decorateVerificationCode
     this.lastEmailRequest = new Map()
   }

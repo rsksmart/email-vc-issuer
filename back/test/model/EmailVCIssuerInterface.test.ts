@@ -1,15 +1,29 @@
 import { verifyCredential } from 'did-jwt-vc'
 import EmailVCIssuerInterface, { INVALID_SIGNATURE_ERROR_MESSAGE } from '../../src/model/EmailVCIssuerInterface'
-import { rpcPersonalSign } from '../utils'
+import { createSqliteConnection, deleteDatabase, resetDatabase, rpcPersonalSign } from '../utils'
 import { decorateVerificationCode, privateKey, did, emailAddress, anotherPrivateKey } from '../mocks'
 import { issuer, resolver } from '../mocks'
+import { Connection, Repository } from 'typeorm'
+import IssuedEmailVC from '../../src/model/entities/issued-vc'
 
 describe('EmailVCIssuerInterface', function (this: {
   emailVCIssuerInterface: EmailVCIssuerInterface
+  dbConnection: Connection
+  repository: Repository<IssuedEmailVC>
 }) {
-  beforeEach(() => {
-    this.emailVCIssuerInterface = new EmailVCIssuerInterface(issuer, decorateVerificationCode)
+  const database = './email-vc-issuer-interface.test.sqlite'
+
+  beforeAll(async () => {
+    this.dbConnection = await createSqliteConnection(database)
   })
+
+  beforeEach(async () => {
+    await resetDatabase(this.dbConnection)
+    this.emailVCIssuerInterface = new EmailVCIssuerInterface(issuer, this.dbConnection, decorateVerificationCode)
+  })
+
+  afterAll(() => deleteDatabase(this.dbConnection, database))
+
   test('issues verifiable credential when verification code is signed', async () => {
     const verificationCode = this.emailVCIssuerInterface.requestVerificationFor(did, emailAddress)
 

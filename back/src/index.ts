@@ -10,6 +10,7 @@ import rateLimit from 'express-rate-limit'
 import SMTPTransport from 'nodemailer/lib/smtp-transport'
 import { createConnection } from 'typeorm'
 import IssuedEmailVC from './model/entities/issued-vc'
+import DidCode from './model/entities/did-code'
 
 dotenv.config()
 
@@ -82,7 +83,7 @@ async function sendVerificationCode(to: string, text: string) {
 createConnection({
   type: 'sqlite',
   database: 'email-vc-issuer.sqlite',
-  entities: [IssuedEmailVC],
+  entities: [IssuedEmailVC, DidCode],
   logging: false,
   dropSchema: false,
   synchronize: true

@@ -4,6 +4,7 @@ import PersonalSignRecoverer from './PersonalSignRecoverer'
 import EmailVCIssuer from './EmailVCIssuer'
 import IssuedEmailVC from './entities/issued-vc'
 import { Connection } from 'typeorm'
+import DidChallenge from './entities/did-code'
 
 export type DecorateVerificationCode = (verificationCode: string) => string
 
@@ -17,7 +18,7 @@ export default class {
   lastEmailRequest: Map<string, string>
 
   constructor(issuer: Issuer, dbConnection: Connection, decorateVerificationCode: DecorateVerificationCode) {
-    this.verificationCodeChecker = new VerificationCodeChecker()
+    this.verificationCodeChecker = new VerificationCodeChecker(dbConnection.getRepository(DidChallenge))
     this.personalSignRecoverer = new PersonalSignRecoverer()
     this.emailVCIssuer = new EmailVCIssuer(issuer, dbConnection.getRepository(IssuedEmailVC))
     this.decorateVerificationCode = decorateVerificationCode
@@ -29,8 +30,8 @@ export default class {
     return this.verificationCodeChecker.generateCodeFor(did)
   }
 
-  verify(did: string, sig: string) {
-    const verificationCode = this.verificationCodeChecker.getCodeOf(did)
+  async verify(did: string, sig: string) {
+    const verificationCode = await this.verificationCodeChecker.getCodeOf(did)
     const msg = this.decorateVerificationCode(verificationCode)
     const signer = this.personalSignRecoverer.recover(msg, sig)
     if (did.split(':').slice(-1)[0] !== signer) throw new Error(INVALID_SIGNATURE_ERROR_MESSAGE)

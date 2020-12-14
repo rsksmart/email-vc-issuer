@@ -9,13 +9,13 @@ interface Options {
 }
 
 export function setupService(app: Express, { emailVCIssuerInterface, sendVerificationCode }: Options, logger: Logger) {
-  app.post('/requestVerification/:did', bodyParser.json(), (req, res) => {
+  app.post('/requestVerification/:did', bodyParser.json(), async (req, res) => {
     const { did } = req.params
     const { emailAddress } = req.body
 
     logger.info(`Requested verification for email ${emailAddress} with did ${did}`)
 
-    const verificationCode = emailVCIssuerInterface.requestVerificationFor(did, emailAddress)
+    const verificationCode = await emailVCIssuerInterface.requestVerificationFor(did, emailAddress)
 
     sendVerificationCode(emailAddress, verificationCode)
 

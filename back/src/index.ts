@@ -27,6 +27,10 @@ const limiter = rateLimit({
  
 app.use(limiter);
 
+app.get('/__health', (req, res) => {
+  res.status(200).end('OK')
+})
+
 const privateKey = process.env.PRIVATE_KEY!
 const issuer = process.env.networkName === 'rsk:testnet' ? rskTestnetDIDFromPrivateKey()(privateKey) : rskDIDFromPrivateKey()(privateKey)
 logger.info(`Service DID: ${issuer.did}`)

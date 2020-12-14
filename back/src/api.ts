@@ -2,7 +2,6 @@ import { Express } from 'express'
 import bodyParser from 'body-parser'
 import EmailVCIssuerInterface from './model/EmailVCIssuerInterface'
 import { Logger } from '@rsksmart/rif-node-utils/lib/logger'
-import { Connection } from 'typeorm'
 
 interface Options {
   emailVCIssuerInterface: EmailVCIssuerInterface

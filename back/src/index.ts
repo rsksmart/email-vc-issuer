@@ -8,6 +8,8 @@ import dotenv from 'dotenv'
 import { loggerFactory } from '@rsksmart/rif-node-utils'
 import rateLimit from 'express-rate-limit'
 import SMTPTransport from 'nodemailer/lib/smtp-transport'
+import { createConnection } from 'typeorm'
+import IssuedEmailVC from './model/entities/issued-vc'
 
 dotenv.config()
 
@@ -36,8 +38,6 @@ const issuer = process.env.networkName === 'rsk:testnet' ? rskTestnetDIDFromPriv
 logger.info(`Service DID: ${issuer.did}`)
 
 const decorateVerificationCode = (code: string) => `Verification code: ${code}`
-
-const emailVCIssuerInterface = new EmailVCIssuerInterface(issuer, decorateVerificationCode)
 
 // https://nodemailer.com/
 async function sendVerificationCode(to: string, text: string) {
@@ -79,7 +79,16 @@ async function sendVerificationCode(to: string, text: string) {
   if (printMailUrl) logger.info(`Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
 }
 
-setupService(app, { emailVCIssuerInterface, sendVerificationCode }, logger)
+createConnection({
+  type: 'sqlite',
+  database: 'email-vc-issuer.sqlite',
+  entities: [IssuedEmailVC],
+  logging: false,
+  dropSchema: false,
+  synchronize: true
+})
+.then(dbConnection => new EmailVCIssuerInterface(issuer, dbConnection, decorateVerificationCode))
+.then(emailVCIssuerInterface => setupService(app, { emailVCIssuerInterface, sendVerificationCode }, logger))
 
 const port = process.env.PORT || 5108
 

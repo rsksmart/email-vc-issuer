@@ -1,12 +1,14 @@
 import express, { Express } from 'express'
 import request from 'supertest'
 import { verifyCredential } from 'did-jwt-vc'
-import { rpcPersonalSign } from './utils'
+import { createSqliteConnection, deleteDatabase, resetDatabase, rpcPersonalSign } from './utils'
 import { issuer, resolver, decorateVerificationCode, did, privateKey, emailAddress, anotherPrivateKey } from './mocks'
 import { setupService } from '../src/api'
 import EmailVCIssuerInterface, { INVALID_SIGNATURE_ERROR_MESSAGE } from '../src/model/EmailVCIssuerInterface'
 import { CODE_NOT_GENERATED_ERROR_MESSAGE } from '../src/model/VerificationCodeChecker'
 import { Logger } from '@rsksmart/rif-node-utils/lib/logger'
+import { Connection, Repository } from 'typeorm'
+import IssuedEmailVC from '../src/model/entities/issued-vc'
 
 const mockedLogger = { info: () => {}, error: () => {} } as unknown as Logger
 
@@ -14,15 +16,26 @@ describe('service', function (this: {
   sendVerificationCode: (to: string, text: string) => Promise<void>
   lastVerificationCodeSent: string
   app: Express
+  dbConnection: Connection
+  repository: Repository<IssuedEmailVC>
 }) {
+  const database = './email-vc-issuer-api.test.sqlite'
+
   this.sendVerificationCode = (to: string, text: string) => {
     this.lastVerificationCodeSent = text
     return Promise.resolve()
   }
 
-  beforeEach(() => {
+  beforeAll(async () => {
+    this.dbConnection = await createSqliteConnection(database)
+  })
+
+  afterAll(() => deleteDatabase(this.dbConnection, database))
+
+  beforeEach(async () => {
+    await resetDatabase(this.dbConnection)
     this.app = express()
-    const emailVCIssuerInterface = new EmailVCIssuerInterface(issuer, decorateVerificationCode)
+    const emailVCIssuerInterface = new EmailVCIssuerInterface(issuer, this.dbConnection, decorateVerificationCode)
     setupService(this.app, { emailVCIssuerInterface, sendVerificationCode: this.sendVerificationCode }, mockedLogger)
   })
 

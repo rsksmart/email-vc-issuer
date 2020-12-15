@@ -1,5 +1,5 @@
 import { randomBytes }  from 'crypto'
-import { getConnection, Repository } from 'typeorm'
+import { Repository } from 'typeorm'
 import DidCode from './entities/did-code'
 
 export const CODE_NOT_GENERATED_ERROR_MESSAGE = 'Generate code first'

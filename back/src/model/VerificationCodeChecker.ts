@@ -1,5 +1,5 @@
 import { randomBytes }  from 'crypto'
-import { Repository } from 'typeorm'
+import { getConnection, Repository } from 'typeorm'
 import DidCode from './entities/did-code'
 
 export const CODE_NOT_GENERATED_ERROR_MESSAGE = 'Generate code first'
@@ -9,17 +9,8 @@ export default class VerificationCodeChecker {
 
   async generateCodeFor(did: string) {
     const code = randomBytes(32).toString('hex')
-    const newRecord = new DidCode(did, code)
-
-    return this.repository.findOne({ where: { did} })
-      .then(record => {
-        if (!record) return this.repository.save(newRecord) 
-        
-        record.expirationTime = newRecord.expirationTime
-        record.code = code
-        return this.repository.save(record)
-      })
-      .then(() => code)
+    await this.repository.save(new DidCode(did, code))
+    return code
   }
 
   async getCodeOf(did: string) {

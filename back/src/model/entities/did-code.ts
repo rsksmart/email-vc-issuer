@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, PrimaryColumn } from 'typeorm'
 
 @Entity()
 export default class DidCode {
@@ -8,10 +8,7 @@ export default class DidCode {
     this.expirationTime = Date.now() + expiresIn
   }
 
-  @PrimaryGeneratedColumn()
-  id!: number;
-
-  @Column('text')
+  @PrimaryColumn()
   did!: string;
 
   @Column('text')

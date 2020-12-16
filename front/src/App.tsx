@@ -4,7 +4,7 @@ import WalletConnectProvider from '@walletconnect/web3-provider'
 import DataVaultWebClient from '@rsksmart/ipfs-cpinner-client'
 import Nav from './Nav'
 
-const backUrl = 'http://localhost:5108'
+const backUrl = 'https://email-vc-issuer.staging.rifcomputing.net'
 
 declare global {
   interface Window {

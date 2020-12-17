@@ -4,7 +4,6 @@
   "version": "1.0.0",
   "description": "Email Verifiable Credential issuer",
   "main": "index.js",
-  "homepage": "https://rsksmart.github.io/email-vc-issuer/",
   "scripts": {
     "test": "cd back && npm test && cd ../front && yarn test --watchAll=false",
     "setup": "cd back && npm i && cd .. && cd front && yarn",

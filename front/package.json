@@ -4,7 +4,7 @@
   "homepage": "https://rsksmart.github.io/email-vc-issuer/",
   "private": true,
   "dependencies": {
-    "@rsksmart/ipfs-cpinner-client": "^0.1.1-beta.5",
+    "@rsksmart/ipfs-cpinner-client": "^0.1.1-beta.7",
     "@rsksmart/rlogin": "^0.1.0",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",

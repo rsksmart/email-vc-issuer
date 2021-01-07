@@ -1580,10 +1580,10 @@
     estree-walker "^1.0.1"
     picomatch "^2.2.2"
 
-"@rsksmart/ipfs-cpinner-client@^0.1.1-beta.5":
-  version "0.1.1-beta.6"
-  resolved "https://registry.yarnpkg.com/@rsksmart/ipfs-cpinner-client/-/ipfs-cpinner-client-0.1.1-beta.6.tgz#83774fb9c48e6e6c6340c7bb675eb0d3fc4d7ece"
-  integrity sha512-H7ONDVgUY3v5PalBSmPPONmdvuDArJjUfZd5ygp8cxdgYKzQxsYPiVlajUlVIRuOsq95hSxSPDzHcJMK0MuZWg==
+"@rsksmart/ipfs-cpinner-client@^0.1.1-beta.7":
+  version "0.1.1-beta.7"
+  resolved "https://registry.yarnpkg.com/@rsksmart/ipfs-cpinner-client/-/ipfs-cpinner-client-0.1.1-beta.7.tgz#3f55537792501f76c7119feeb01039f58398e667"
+  integrity sha512-1KERjN9qmJZjRpqHAb9lWNpT04AF/sYKKml17jPeFZjLp5MJl/GDWM+6GYGv97sRTzRjWdtB4SD8qrg23myjZw==
   dependencies:
     axios "^0.21.0"
     buffer "^6.0.3"

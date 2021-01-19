@@ -14,7 +14,7 @@
     "url": "git+https://github.com/rsksmart/email-vc-issuer.git"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/rsksmart/email-vc-issuer/issues"
   },

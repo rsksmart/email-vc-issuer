@@ -1580,12 +1580,12 @@
     estree-walker "^1.0.1"
     picomatch "^2.2.2"
 
-"@rsksmart/ipfs-cpinner-client@^0.1.1-beta.7":
-  version "0.1.1-beta.7"
-  resolved "https://registry.yarnpkg.com/@rsksmart/ipfs-cpinner-client/-/ipfs-cpinner-client-0.1.1-beta.7.tgz#3f55537792501f76c7119feeb01039f58398e667"
-  integrity sha512-1KERjN9qmJZjRpqHAb9lWNpT04AF/sYKKml17jPeFZjLp5MJl/GDWM+6GYGv97sRTzRjWdtB4SD8qrg23myjZw==
+"@rsksmart/ipfs-cpinner-client@^0.1.1-beta.9":
+  version "0.1.1-beta.9"
+  resolved "https://registry.yarnpkg.com/@rsksmart/ipfs-cpinner-client/-/ipfs-cpinner-client-0.1.1-beta.9.tgz#391f7827ea59b4bcde519d9a8c10deddf2f062eb"
+  integrity sha512-06oJdPHpoE5bJs09U/06nRawH/XmX0r2tebd2TdZ1t1jOxl9HlrMP8xVJKZIcThz/5mq/AuR/gNvCtg1UDG45A==
   dependencies:
-    axios "^0.21.0"
+    axios "^0.21.1"
     buffer "^6.0.3"
     did-jwt "^4.6.2"
     eth-sig-util "^3.0.0"
@@ -2967,10 +2967,10 @@ axios@^0.20.0:
   dependencies:
     follow-redirects "^1.10.0"
 
-axios@^0.21.0:
-  version "0.21.0"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.0.tgz#26df088803a2350dff2c27f96fef99fe49442aca"
-  integrity sha512-fmkJBknJKoZwem3/IKSSLpkdNXZeBu5Q7GA/aRsr2btgrptmSCxi2oFjZHqGdK9DoTil9PIHlPIZw2EcRJXRvw==
+axios@^0.21.1:
+  version "0.21.1"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.1.tgz#22563481962f4d6bde9a76d516ef0e5d3c09b2b8"
+  integrity sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==
   dependencies:
     follow-redirects "^1.10.0"
 

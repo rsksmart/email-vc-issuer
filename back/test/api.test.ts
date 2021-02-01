@@ -3,7 +3,7 @@ import request from 'supertest'
 import { verifyCredential } from 'did-jwt-vc'
 import { createSqliteConnection, deleteDatabase, resetDatabase, rpcPersonalSign } from './utils'
 import { issuer, resolver, decorateVerificationCode, did, privateKey, emailAddress, anotherPrivateKey } from './mocks'
-import { setupService } from '../src/api'
+import { setupService, UNHANDLED_ERROR_MESSAGE } from '../src/api'
 import EmailVCIssuerInterface, { INVALID_SIGNATURE_ERROR_MESSAGE } from '../src/model/EmailVCIssuerInterface'
 import { CODE_NOT_GENERATED_ERROR_MESSAGE } from '../src/model/VerificationCodeChecker'
 import { Logger } from '@rsksmart/rif-node-utils/lib/logger'
@@ -61,7 +61,7 @@ describe('service', function (this: {
 
     await request(this.app).post(`/verify/${did}`).send({ sig }).then((res: any) => {
       expect(res.statusCode).toEqual(500)
-      expect(res.text).toEqual(escape(INVALID_SIGNATURE_ERROR_MESSAGE))
+      expect(res.text).toEqual(UNHANDLED_ERROR_MESSAGE)
     })
   })
 
@@ -72,7 +72,7 @@ describe('service', function (this: {
 
     await request(this.app).post(`/verify/${did}`).send({ sig }).then((res: any) => {
       expect(res.statusCode).toEqual(500)
-      expect(res.text).toEqual(escape(INVALID_SIGNATURE_ERROR_MESSAGE))
+      expect(res.text).toEqual(UNHANDLED_ERROR_MESSAGE)
     })
   })
 
@@ -81,7 +81,7 @@ describe('service', function (this: {
 
     await request(this.app).post(`/verify/${did}`).send({ sig }).then((res: any) => {
       expect(res.statusCode).toEqual(500)
-      expect(res.text).toEqual(escape(CODE_NOT_GENERATED_ERROR_MESSAGE))
+      expect(res.text).toEqual(UNHANDLED_ERROR_MESSAGE)
     })
   })
 })

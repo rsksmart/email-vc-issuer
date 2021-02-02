@@ -8,6 +8,8 @@ interface Options {
   sendVerificationCode: (to: string, text: string) => Promise<void>
 }
 
+export const UNHANDLED_ERROR_MESSAGE = 'Unhandled error'
+
 export function setupService(app: Express, { emailVCIssuerInterface, sendVerificationCode }: Options, logger: Logger) {
   app.post('/requestVerification/:did', bodyParser.json(), async (req, res) => {
     const { did } = req.params
@@ -32,7 +34,7 @@ export function setupService(app: Express, { emailVCIssuerInterface, sendVerific
       res.status(200).send({ jwt })
     } catch (e) {
       logger.error('Caught error when issuing VC', e)
-      res.status(500).send(escape(e.message))
+      res.status(500).send(UNHANDLED_ERROR_MESSAGE)
     }
   })
 }

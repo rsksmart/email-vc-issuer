@@ -64,7 +64,7 @@ function App() {
         const personalSign = (data: string) => provider!.request({ method: 'personal_sign', params: [accounts[0], data] })
         const decrypt = (hexCypher: string) => provider!.request({ method: 'eth_decrypt', params: [hexCypher, accounts[0]] })
         const getEncryptionPublicKey = () => provider!.request({ method: 'eth_getEncryptionPublicKey', params: [accounts[0]] })
-        const serviceUrl = 'https://identity.staging.rifcomputing.net/v2'
+        const serviceUrl = 'https://identity.staging.rifcomputing.net'
 
         const dataVault = new DataVaultWebClient({
           authManager: new AuthManager({ did, serviceUrl, personalSign }),

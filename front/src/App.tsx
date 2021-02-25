@@ -39,7 +39,7 @@ const handleInputChangeFactory = (setter: (value: string) => void) => (e: React.
 const accountToDid = (account: string) => `did:ethr:rsk:testnet:${account}`
 
 const getEncryptionManager = async (provider: any) => {
-  if (provider.isMetamask) return await AsymmetricEncryptionManager.fromWeb3Provider(provider)
+  if (provider.isMetaMask && !provider.isNiftyWallet) return await AsymmetricEncryptionManager.fromWeb3Provider(provider)
   return await SignerEncryptionManager.fromWeb3Provider(provider)
 }
 

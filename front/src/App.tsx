@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import RLogin from '@rsksmart/rlogin'
 import WalletConnectProvider from '@walletconnect/web3-provider'
-import DataVaultWebClient, { AuthManager, EncryptionManager } from '@rsksmart/ipfs-cpinner-client'
+import DataVaultWebClient, { AuthManager, AsymmetricEncryptionManager, SignerEncryptionManager } from '@rsksmart/ipfs-cpinner-client'
 import Nav from './Nav'
 
 const backUrl = 'https://email-vc-issuer.staging.rifcomputing.net'
@@ -38,6 +38,11 @@ export const rLogin = new RLogin({
 const handleInputChangeFactory = (setter: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => setter(e.target.value)
 const accountToDid = (account: string) => `did:ethr:rsk:testnet:${account}`
 
+const getEncryptionManager = async (provider: any) => {
+  if (provider.isMetaMask && !provider.isNiftyWallet) return await AsymmetricEncryptionManager.fromWeb3Provider(provider)
+  return await SignerEncryptionManager.fromWeb3Provider(provider)
+}
+
 function App() {
   const [error, setError] = useState('')
   const [provider, setProvider] = useState<Web3Provider | null>(null)
@@ -54,25 +59,25 @@ function App() {
   const handleError = (error: Error) => setError(error ? error.message : 'Unhandled error')
 
   const enable = () => rLogin.connect()
-    .then((provider: Web3Provider) => {
+    .then(({ provider }: any) => {
       setProvider(provider)
 
       provider.request({ method: 'eth_accounts' }).then((accounts: string[]) => {
         setAccount(accounts[0])
         const did = accountToDid(accounts[0])
 
-        const personalSign = (data: string) => provider!.request({ method: 'personal_sign', params: [accounts[0], data] })
-        const decrypt = (hexCypher: string) => provider!.request({ method: 'eth_decrypt', params: [hexCypher, accounts[0]] })
-        const getEncryptionPublicKey = () => provider!.request({ method: 'eth_getEncryptionPublicKey', params: [accounts[0]] })
-        const serviceUrl = 'https://identity.staging.rifcomputing.net'
+        const personalSign = (data: string) => provider!.request({ method: 'personal_sign', params: [data, accounts[0]] })
+        const serviceUrl = 'https://identity-data-vault.testnet.rifos.org'
 
-        const dataVault = new DataVaultWebClient({
-          authManager: new AuthManager({ did, serviceUrl, personalSign }),
-          encryptionManager: new EncryptionManager({ getEncryptionPublicKey, decrypt }),
-          serviceUrl
+        return getEncryptionManager(provider).then((encryptionManager) => {
+          const dataVault = new DataVaultWebClient({
+            authManager: new AuthManager({ did, serviceUrl, personalSign }),
+            encryptionManager,
+            serviceUrl
+          })
+
+          setDataVault(dataVault)
         })
-
-        setDataVault(dataVault)
       })
     })
     .catch(handleError)
@@ -95,8 +100,8 @@ function App() {
   const verify = () => provider!.request({
     method: 'personal_sign',
     params: [
-      account,
-      `Verification code: ${verificationCode}` // includes the decoration
+      `Verification code: ${verificationCode}`, // includes the decoration
+      account
     ]
   }).then((sig: string) => fetch(`${backUrl}/verify/` + did, {
     method: 'POST',
@@ -128,7 +133,7 @@ function App() {
         <div className="col">
           <h1>Email VC Issuer</h1>
 
-          {error && <p>Error: {error}</p>}
+          {error && <p className="error">Error: {error}</p>}
 
           <h3>1. Enable wallet</h3>
           <button onClick={enable} className="btn btn-primary">enable</button>

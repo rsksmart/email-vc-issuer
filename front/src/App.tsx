@@ -66,7 +66,7 @@ function App() {
         setAccount(accounts[0])
         const did = accountToDid(accounts[0])
 
-        const personalSign = (data: string) => provider!.request({ method: 'personal_sign', params: [accounts[0], data] })
+        const personalSign = (data: string) => provider!.request({ method: 'personal_sign', params: [data, accounts[0]] })
         const serviceUrl = 'https://identity-data-vault.testnet.rifos.org'
 
         return getEncryptionManager(provider).then((encryptionManager) => {
@@ -100,8 +100,8 @@ function App() {
   const verify = () => provider!.request({
     method: 'personal_sign',
     params: [
-      account,
-      `Verification code: ${verificationCode}` // includes the decoration
+      `Verification code: ${verificationCode}`, // includes the decoration
+      account
     ]
   }).then((sig: string) => fetch(`${backUrl}/verify/` + did, {
     method: 'POST',
@@ -133,7 +133,7 @@ function App() {
         <div className="col">
           <h1>Email VC Issuer</h1>
 
-          {error && <p>Error: {error}</p>}
+          {error && <p className="error">Error: {error}</p>}
 
           <h3>1. Enable wallet</h3>
           <button onClick={enable} className="btn btn-primary">enable</button>

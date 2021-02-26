@@ -34,7 +34,7 @@ export default class {
     const verificationCode = await this.verificationCodeChecker.getCodeOf(did)
     const msg = this.decorateVerificationCode(verificationCode)
     const signer = this.personalSignRecoverer.recover(msg, sig)
-    if (did.split(':').slice(-1)[0] !== signer) throw new Error(INVALID_SIGNATURE_ERROR_MESSAGE)
+    if (did.split(':').slice(-1)[0].toLowerCase() !== signer.toLowerCase()) throw new Error(INVALID_SIGNATURE_ERROR_MESSAGE)
     return this.emailVCIssuer.createVerifiableCredentialFor(did, this.lastEmailRequest.get(did)!)
   }
 }

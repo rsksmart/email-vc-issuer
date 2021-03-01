@@ -18,8 +18,6 @@ jobs:
         run: |
           cd front
           yarn
-
-      - name: Build site
           yarn build
 
       - name: Configure AWS credentials
@@ -31,6 +29,7 @@ jobs:
 
       - name: Deploy site to S3
         run: |
+          cd front
           aws s3 sync --delete --only-show-errors build/ ${{ secrets.MAIN_S3_BUCKET }}
 
       - name: Invalidate CloudFront cache

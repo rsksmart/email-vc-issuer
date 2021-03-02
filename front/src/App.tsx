@@ -4,7 +4,7 @@ import WalletConnectProvider from '@walletconnect/web3-provider'
 import DataVaultWebClient, { AuthManager, AsymmetricEncryptionManager, SignerEncryptionManager } from '@rsksmart/ipfs-cpinner-client'
 import Nav from './Nav'
 
-const backUrl = 'https://email-vc-issuer.staging.rifcomputing.net'
+const backUrl = process.env.REACT_APP_BACK_END_URL
 
 declare global {
   interface Window {

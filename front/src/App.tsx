@@ -67,7 +67,7 @@ function App() {
         const did = accountToDid(accounts[0])
 
         const personalSign = (data: string) => provider!.request({ method: 'personal_sign', params: [data, accounts[0]] })
-        const serviceUrl = 'https://identity-data-vault.testnet.rifos.org'
+        const serviceUrl = 'https://data-vault.identity.rifos.org'
 
         return getEncryptionManager(provider).then((encryptionManager) => {
           const dataVault = new DataVaultWebClient({

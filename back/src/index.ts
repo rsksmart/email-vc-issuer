@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Request, Response } from 'express'
 import cors from 'cors'
 import nodemailer from 'nodemailer'
 import { rskDIDFromPrivateKey, rskTestnetDIDFromPrivateKey } from '@rsksmart/rif-id-ethr-did'
@@ -92,5 +92,9 @@ createConnection({
 .then(emailVCIssuerInterface => setupService(app, { emailVCIssuerInterface, sendVerificationCode }, logger))
 
 const port = process.env.PORT || 5108
+
+app.get('/__health', (req: Request, res: Response) => {
+  res.status(200).end('OK')
+})
 
 app.listen(port, () => console.log(`Email VC Issuer running at http://localhost:${port}`))

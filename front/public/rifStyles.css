@@ -1,0 +1,23 @@
+* {
+  font-family: 'Rubik', sans-serif;
+}
+
+body {
+  color: #000000;
+  font-weight: 300;
+  font-size: 15px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #008CFF;
+  font-weight: 300 !important;
+}
+
+.navbar {
+  margin-bottom: 50px;
+}
+
+.logo {
+  width: 150px;
+  height: auto;
+}

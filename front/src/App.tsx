@@ -115,8 +115,12 @@ function App() {
     referrerPolicy: 'no-referrer',
     body: JSON.stringify({ sig })
   }))
-    .then(res => res.json())
-    .then(({ jwt }: { jwt: string }) => { setJwt(jwt) })
+    .then(res => {
+      res.status === 200
+        ? res.json().then(({ jwt }: { jwt: string }) => { setJwt(jwt) })
+        : res.text().then((error: string) => handleError(new Error(error)))
+    })
+    
     .catch(handleError)
 
   const saveInDataVault = () => dataVault!.create({ key: 'EmailVerifiableCredential', content: jwt })

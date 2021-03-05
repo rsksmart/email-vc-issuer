@@ -167,7 +167,7 @@ function App() {
           <p style={{ wordWrap: 'break-word' }}>{savedInDataVault && 'Saved!'}</p>
 
           <h3>5. Validate in RIF Id Manager</h3>
-          <p>Go to the <a href="https://rsksmart.github.io/rif-identity-manager/" target="_blank" rel="noreferrer">RIF Identity Manager</a></p>
+          <p>Go to the <a href="https://identity.rifos.org/" target="_blank" rel="noreferrer">RIF Identity Manager</a></p>
         </div>
       </div>
     </div>

@@ -46,7 +46,6 @@ const getEncryptionManager = async (provider: any) => {
 function App() {
   const [error, setError] = useState('')
   const [provider, setProvider] = useState<Web3Provider | null>(null)
-  const [dataVault, setDataVault] = useState<DataVaultWebClient | null>(null)
   const [account, setAccount] = useState('')
   const [chainId, setChainId] = useState(0)
   const [emailAddress, setEmailAddress] = useState('')

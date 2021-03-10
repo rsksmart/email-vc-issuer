@@ -115,8 +115,12 @@ function App() {
     referrerPolicy: 'no-referrer',
     body: JSON.stringify({ sig })
   }))
-    .then(res => res.json())
-    .then(({ jwt }: { jwt: string }) => { setJwt(jwt) })
+    .then(res => {
+      res.status === 200
+        ? res.json().then(({ jwt }: { jwt: string }) => { setJwt(jwt) })
+        : res.text().then((error: string) => handleError(new Error(error)))
+    })
+    
     .catch(handleError)
 
   const saveInDataVault = () => dataVault!.create({ key: 'EmailVerifiableCredential', content: jwt })
@@ -163,7 +167,7 @@ function App() {
           <p style={{ wordWrap: 'break-word' }}>{savedInDataVault && 'Saved!'}</p>
 
           <h3>5. Validate in RIF Id Manager</h3>
-          <p>Go to the <a href="https://rsksmart.github.io/rif-identity-manager/" target="_blank" rel="noreferrer">RIF Identity Manager</a></p>
+          <p>Go to the <a href="https://identity.rifos.org/" target="_blank" rel="noreferrer">RIF Identity Manager</a></p>
         </div>
       </div>
     </div>

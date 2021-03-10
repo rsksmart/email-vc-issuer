@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Nav = () => <nav className="navbar navbar-expand-md navbar-light bg-light fixed-top">
+const Nav = () => <nav className="navbar navbar-expand-md navbar-light bg-light">
   <div className="container">
     <a className="navbar-brand" href="https://rifos.org" target="_blank" rel="noreferrer">
       <img src="https://rifos.org/assets/img/logo.svg" className="logo" alt="logo" />

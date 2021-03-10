@@ -3,6 +3,7 @@ import RLogin from '@rsksmart/rlogin'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import DataVaultWebClient, { AuthManager, AsymmetricEncryptionManager, SignerEncryptionManager } from '@rsksmart/ipfs-cpinner-client'
 import Nav from './Nav'
+import { createDidFormat } from '@rsksmart/did-utils'
 
 const backUrl = process.env.REACT_APP_BACK_END_URL
 
@@ -32,11 +33,10 @@ export const rLogin = new RLogin({
       }
     }
   },
-  supportedChains: [31]
+  supportedChains: [1, 30, 31]
 })
 
 const handleInputChangeFactory = (setter: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => setter(e.target.value)
-const accountToDid = (account: string) => `did:ethr:rsk:testnet:${account}`
 
 const getEncryptionManager = async (provider: any) => {
   if (provider.isMetaMask && !provider.isNiftyWallet) return await AsymmetricEncryptionManager.fromWeb3Provider(provider)
@@ -48,13 +48,14 @@ function App() {
   const [provider, setProvider] = useState<Web3Provider | null>(null)
   const [dataVault, setDataVault] = useState<DataVaultWebClient | null>(null)
   const [account, setAccount] = useState('')
+  const [chainId, setChainId] = useState(0)
   const [emailAddress, setEmailAddress] = useState('')
   const [wasEmailSent, setWasEmailSent] = useState(false)
   const [verificationCode, setVerificationCode] = useState('')
   const [jwt, setJwt] = useState('')
   const [savedInDataVault, setSavedInDataVault] = useState(false)
 
-  const did = !!account ? accountToDid(account) : ''
+  const did = !!account ? createDidFormat(account, chainId) : ''
 
   const handleError = (error: Error) => setError(error ? error.message : 'Unhandled error')
 
@@ -62,22 +63,12 @@ function App() {
     .then(({ provider }: any) => {
       setProvider(provider)
 
-      provider.request({ method: 'eth_accounts' }).then((accounts: string[]) => {
+      Promise.all([
+        provider.request({ method: 'eth_accounts' }),
+        provider.request({ method: 'eth_chainId'})
+      ]).then(([accounts, chainId]) => {
         setAccount(accounts[0])
-        const did = accountToDid(accounts[0])
-
-        const personalSign = (data: string) => provider!.request({ method: 'personal_sign', params: [data, accounts[0]] })
-        const serviceUrl = 'https://data-vault.identity.rifos.org'
-
-        return getEncryptionManager(provider).then((encryptionManager) => {
-          const dataVault = new DataVaultWebClient({
-            authManager: new AuthManager({ did, serviceUrl, personalSign }),
-            encryptionManager,
-            serviceUrl
-          })
-
-          setDataVault(dataVault)
-        })
+        setChainId(Number(chainId))
       })
     })
     .catch(handleError)
@@ -120,14 +111,23 @@ function App() {
         ? res.json().then(({ jwt }: { jwt: string }) => { setJwt(jwt) })
         : res.text().then((error: string) => handleError(new Error(error)))
     })
-    
     .catch(handleError)
 
-  const saveInDataVault = () => dataVault!.create({ key: 'EmailVerifiableCredential', content: jwt })
+  const serviceUrl = 'https://data-vault.identity.rifos.org'
+
+  const saveInDataVault = () => getEncryptionManager(provider).then((encryptionManager) => new DataVaultWebClient({
+    authManager: new AuthManager({
+      did,
+      serviceUrl,
+      personalSign: (data: string) => provider!.request({ method: 'personal_sign', params: [data, account] })
+    }),
+    encryptionManager,
+    serviceUrl
+  }).create({ key: 'EmailVerifiableCredential', content: jwt })
     .then(() => {
       setSavedInDataVault(true)
     })
-    .catch(handleError)
+  ).catch(handleError)
 
 
   return <div>

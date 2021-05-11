@@ -1615,10 +1615,21 @@
   resolved "https://registry.yarnpkg.com/@rsksmart/did-utils/-/did-utils-1.0.0.tgz#5e657bd17863e94193b60c27d812004bcae961ac"
   integrity sha512-WKJ8y3re2YvnyMOa5Dzo8I5vFzDSk0C9pPyrQtYBz0+9ql+0SzJBCk5k713KSwRu4cX3SH8o9Pv+Kpz/fKn5Xw==
 
-"@rsksmart/ipfs-cpinner-client@0.1.1", "@rsksmart/ipfs-cpinner-client@^0.1.1":
+"@rsksmart/ipfs-cpinner-client@0.1.1":
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/@rsksmart/ipfs-cpinner-client/-/ipfs-cpinner-client-0.1.1.tgz#f67ad2420ca200e0de0c1eb1029c93e20760dcd7"
   integrity sha512-XX/K7+pV10IumvYJWbI/bw6qVeFkWkPej2ipBw6k5NTDPZdgLpX5Uz2Jt9shQHbrR3JuenhXDLazwnaVoL4sow==
+  dependencies:
+    axios "^0.21.1"
+    buffer "^6.0.3"
+    crypto-js "^4.0.0"
+    did-jwt "^4.6.2"
+    eth-sig-util "^3.0.0"
+
+"@rsksmart/ipfs-cpinner-client@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@rsksmart/ipfs-cpinner-client/-/ipfs-cpinner-client-0.1.2.tgz#bc4a5f3ef6dab78e7defa04f30f905187f698783"
+  integrity sha512-sopOcIRbSDEErNrbVFUUAwuV/fIOf4iBimtQL+S4FyI0TMJtmRFeUq9boCPvyjzPDziUiy0M/jqVKWvZYQ6gLw==
   dependencies:
     axios "^0.21.1"
     buffer "^6.0.3"

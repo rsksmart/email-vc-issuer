@@ -16,6 +16,12 @@
   <a href="https://lgtm.com/projects/g/rsksmart/email-vc-issuer/context:javascript">
     <img src="https://img.shields.io/lgtm/grade/javascript/github/rsksmart/email-vc-issuer">
   </a>
+  <a href="https://sonarcloud.io/component_measures?id=rsksmart_email-vc-issuer&metric=Security">
+    <img src="https://sonarcloud.io/api/project_badges/measure?project=rsksmart_email-vc-issuer&metric=security_rating">
+  </a>
+  <a href="https://sonarcloud.io/component_measures?id=rsksmart_email-vc-issuer&metric=vulnerabilities&view=list">
+    <img src="https://sonarcloud.io/api/project_badges/measure?project=rsksmart_email-vc-issuer&metric=vulnerabilities">
+  </a>
 </p>
 
 This service allows the controller of a decentralized identity to verify your email address.

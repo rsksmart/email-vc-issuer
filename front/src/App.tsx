@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import RLogin from '@rsksmart/rlogin'
 import WalletConnectProvider from '@walletconnect/web3-provider'
+import Portis from '@portis/web3'
 import DataVaultWebClient, { AuthManager, AsymmetricEncryptionManager, SignerEncryptionManager } from '@rsksmart/ipfs-cpinner-client'
 import Nav from './Nav'
 import { createDidFormat } from '@rsksmart/did-utils'
@@ -29,6 +30,16 @@ export const rLogin = new RLogin({
           1: 'https://mainnet.infura.io/v3/8043bb2cf99347b1bfadfb233c5325c0',
           30: 'https://public-node.rsk.co',
           31: 'https://public-node.testnet.rsk.co'
+        }
+      }
+    },
+    portis: {
+      package: Portis,
+      options: {
+        id: 'bb40ce05-67d3-48d0-85ca-92536952f38e',
+        network: {
+          nodeUrl: 'https://public-node.testnet.rsk.co',
+          chainId: 30
         }
       }
     }

@@ -4,6 +4,7 @@
   "private": true,
   "homepage": ".",
   "dependencies": {
+    "@portis/web3": "^4.0.0",
     "@rsksmart/did-utils": "^1.0.0",
     "@rsksmart/ipfs-cpinner-client": "^0.1.2",
     "@rsksmart/rlogin": "^1.0.5",

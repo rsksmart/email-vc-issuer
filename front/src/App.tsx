@@ -38,7 +38,7 @@ export const rLogin = new RLogin({
       options: {
         id: 'bb40ce05-67d3-48d0-85ca-92536952f38e',
         network: {
-          nodeUrl: 'https://public-node.testnet.rsk.co',
+          nodeUrl: 'https://public-node.rsk.co',
           chainId: 30
         }
       }

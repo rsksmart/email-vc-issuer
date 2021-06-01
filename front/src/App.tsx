@@ -38,8 +38,8 @@ export const rLogin = new RLogin({
       options: {
         id: 'bb40ce05-67d3-48d0-85ca-92536952f38e',
         network: {
-          nodeUrl: 'https://public-node.rsk.co',
-          chainId: 30
+          nodeUrl: 'https://public-node.testnet.rsk.co',
+          chainId: 31
         }
       }
     }
@@ -150,7 +150,7 @@ function App() {
           {error && <p className="error">Error: {error}</p>}
 
           <h3>1. Enable wallet</h3>
-          <button onClick={enable} className="btn btn-primary">enable</button>
+          <button onClick={enable} disabled={account !== ''} className="btn btn-primary">enable</button>
           <p>{account}</p>
           <p>{did}</p> {/* fix network according wallet */}
 

@@ -7,8 +7,8 @@ export const CODE_NOT_GENERATED_ERROR_MESSAGE = 'Generate code first'
 export default class VerificationCodeChecker {
   constructor(private repository: Repository<DidCode>) { }
 
-  async generateCodeFor(did: string) {
-    const code = randomBytes(32).toString('hex')
+  async generateCodeFor(did: string, codeSize: number = 32) {
+    const code = randomBytes(codeSize).toString('hex')
     await this.repository.save(new DidCode(did, code))
     return code
   }

@@ -6,6 +6,8 @@ export const privateKey = Buffer.from('876d78e89797cf2cf9441e4d0d111589cd8b36a20
 export const did = 'did:ethr:rsk:0x87eb390df1e05ef0560e387206f5997034cd6f28'
 export const emailAddress = 'test@sample.com'
 
+export const phoneNumber = '+918802208803'
+
 export const anotherDid = 'did:ethr:rsk:0xa31a90984e7aeb66929759d192793736600687bc'
 
 export const anotherPrivateKey = Buffer.from('8586abcdf499527f33d4f4ecdd8c785066d095ce75b43e44326a0612914fb57e', 'hex')

@@ -1,6 +1,7 @@
 import { ecsign, hashPersonalMessage, toRpcSig } from 'ethereumjs-util'
 import { Connection, createConnection } from 'typeorm'
 import IssuedEmailVC from '../src/model/entities/issued-vc'
+import IssuedSmsVC from '../src/model/entities/issued-vc-sms'
 import fs from 'fs'
 import DidCode from '../src/model/entities/did-code'
 
@@ -13,7 +14,7 @@ export const rpcPersonalSign = (msg: string, privateKey: Buffer) => {
 export const createSqliteConnection = (database: string) => createConnection({
   type: 'sqlite',
   database,
-  entities: [IssuedEmailVC, DidCode],
+  entities: [IssuedEmailVC, IssuedSmsVC, DidCode],
   logging: false,
   dropSchema: true,
   synchronize: true

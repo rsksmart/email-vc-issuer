@@ -3,14 +3,17 @@ import cors from 'cors'
 import nodemailer from 'nodemailer'
 import { rskDIDFromPrivateKey, rskTestnetDIDFromPrivateKey } from '@rsksmart/rif-id-ethr-did'
 import EmailVCIssuerInterface from './model/EmailVCIssuerInterface'
-import { setupService } from './api'
+import { setupService, setupSmsService } from './api'
 import dotenv from 'dotenv'
 import { loggerFactory } from '@rsksmart/rif-node-utils'
 import rateLimit from 'express-rate-limit'
 import SMTPTransport from 'nodemailer/lib/smtp-transport'
 import { createConnection } from 'typeorm'
 import IssuedEmailVC from './model/entities/issued-vc'
+import IssuedSmsVC from './model/entities/issued-vc-sms'
 import DidCode from './model/entities/did-code'
+import SmsVCIssuerInterface from './model/SmsVCIssuerInterface'
+import { Twilio } from 'twilio'
 
 dotenv.config()
 
@@ -80,17 +83,44 @@ async function sendVerificationCode(to: string, text: string) {
   if (printMailUrl) logger.info(`Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
 }
 
+async function sendSmsVerificationCode(to: string, text: string) {
+  return new Promise<void>((resolve: (msg: any) => void, reject: (err: Error) => void) => {
+
+    if ((process.env.TWILIO_ACCOUNT_SID === undefined) || (process.env.TWILIO_AUTH_TOKEN === undefined)) {
+      reject(new Error('TWILIO settings missing')); return;
+    }
+
+    const client = new Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+    client.messages
+      .create({ to, from: process.env.TWILIO_PHONE_NUMBER, body: text })
+      .then((message: any) => {
+        console.log(`Message Sent ${message.sid}`);
+        resolve(`Message Sent ${message.sid}`);
+      })
+      .catch((error: Error) => {
+        console.log(`error: ${error}`);
+        reject(error);
+      });
+  });
+}
+
 createConnection({
   type: 'sqlite',
-  database: 'email-vc-issuer.sqlite',
-  entities: [IssuedEmailVC, DidCode],
+  database: 'vc-issuer.sqlite',
+  entities: [IssuedEmailVC, IssuedSmsVC, DidCode],
   logging: false,
   dropSchema: false,
   synchronize: true
 })
-.then(dbConnection => new EmailVCIssuerInterface(issuer, dbConnection, decorateVerificationCode))
-.then(emailVCIssuerInterface => setupService(app, { emailVCIssuerInterface, sendVerificationCode }, logger))
+.then(dbConnection => {
+  
+  let emailVCIssuerInterface = new EmailVCIssuerInterface(issuer, dbConnection, decorateVerificationCode)
+  let smsVCIssuerInterface = new SmsVCIssuerInterface(issuer, dbConnection, decorateVerificationCode)
+
+  setupService(app, { emailVCIssuerInterface, sendVerificationCode }, logger)
+  setupSmsService(app, { smsVCIssuerInterface, sendSmsVerificationCode }, logger)
+});
 
 const port = process.env.PORT || 5108
 
-app.listen(port, () => console.log(`Email VC Issuer running at http://localhost:${port}`))
+app.listen(port, () => console.log(`VC Issuer running at http://localhost:${port}`))

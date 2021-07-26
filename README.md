@@ -113,7 +113,7 @@ React.js app integrating:
 ## Branching model
 
 - `main` has latest release. Merge into `main` will deploy front-end to [email-verifier.identity.rifos.org](https://email-verifier.identity.rifos.org/). Do merge commits.
-- `develop` has latest approved PR. PRs need to pass `ci`. Do squash & merge.
+- `develop` has latest approved PR. PRs need to pass `ci`, _LGTM_ and _Sonar_. Do squash & merge.
 - Use branches pointing to `develop` to add new PRs.
 - Do external PRs against latest commit in `develop`.
 

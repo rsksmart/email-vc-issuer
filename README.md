@@ -89,7 +89,11 @@ npm run start:dev
 
 ## Run for production
 
-You can optionally run any of the services. You will need to add some `.env` variables to activate the features
+You can optionally run any of the services. You will need to add some `.env` variables to activate the features. First add
+
+```
+NODE_ENV=production
+```
 
 ### Email verifications
 

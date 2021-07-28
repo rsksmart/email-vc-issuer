@@ -1,12 +1,12 @@
-import express from 'express'
-import cors from 'cors'
+import { setupConfig } from './config'
+import { createLogger } from './logger'
+import { createApp } from './server'
+import { createIssuer } from './identity'
+
 import nodemailer from 'nodemailer'
-import { rskDIDFromPrivateKey, rskTestnetDIDFromPrivateKey } from '@rsksmart/rif-id-ethr-did'
 import EmailVCIssuerInterface from './model/EmailVCIssuerInterface'
 import { setupService, setupSmsService } from './api'
-import dotenv from 'dotenv'
-import { loggerFactory } from '@rsksmart/rif-node-utils'
-import rateLimit from 'express-rate-limit'
+
 import SMTPTransport from 'nodemailer/lib/smtp-transport'
 import { createConnection } from 'typeorm'
 import IssuedEmailVC from './model/entities/issued-vc'
@@ -14,85 +14,48 @@ import IssuedSmsVC from './model/entities/issued-vc-sms'
 import DidCode from './model/entities/did-code'
 import SmsVCIssuerInterface from './model/SmsVCIssuerInterface'
 import { Twilio } from 'twilio'
+import { EmailSender } from './email'
 
-dotenv.config()
+const config = setupConfig()
 
-const logger = loggerFactory({
-  env: process.env.NODE_ENV || 'dev',
-  infoFile: process.env.LOG_FILE || './log/email-vc-issuer.log',
-  errorFile: process.env.LOG_ERROR_FILE || './log/email-vc-issuer.log'
-})('email-vc-issuer')
+const logger = createLogger(config.NODE_ENV, config.LOG_FILE, config.LOG_ERROR_FILE)
 
-const app = express()
-app.use(cors())
+const app = createApp()
 
-const limiter = rateLimit({
-  windowMs: 1000, // 1 minute
-  max: 5
-});
- 
-app.use(limiter);
-
-app.get('/__health', (req, res) => {
-  res.status(200).end('OK')
-})
-
-const privateKey = process.env.PRIVATE_KEY!
-const issuer = process.env.networkName === 'rsk:testnet' ? rskTestnetDIDFromPrivateKey()(privateKey) : rskDIDFromPrivateKey()(privateKey)
+const issuer = createIssuer(config.PRIVATE_KEY, config.NETWORK_NAME)
 logger.info(`Service DID: ${issuer.did}`)
 
 const decorateVerificationCode = (code: string) => `Verification code: ${code}`
 
 // https://nodemailer.com/
 async function sendVerificationCode(to: string, text: string) {
-  let transport: SMTPTransport.Options
-  let printMailUrl = false
+  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = config
+  const isProd = SMTP_PORT && SMTP_HOST && SMTP_USER && SMTP_PASS
 
-  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env
+  let emailSender
 
-  if (SMTP_PORT && SMTP_HOST && SMTP_USER && SMTP_PASS) {
-    transport = {
-      host: SMTP_HOST,
-      port: Number(SMTP_PORT),
-      secure: true,
-      auth: { user: SMTP_USER, pass: SMTP_PASS }
-    }
+  if (isProd) {
+    emailSender = await EmailSender.createTransporter(SMTP_HOST!, Number(SMTP_PORT!), SMTP_USER!, SMTP_PASS!)
   } else {
-    // use ethereal
-    const testSmtp = await nodemailer.createTestAccount()
-
-    transport = {
-      ...testSmtp.smtp,
-      auth: { user: testSmtp.user, pass: testSmtp.pass }
-    }
-
-    printMailUrl = true
+    emailSender = await EmailSender.createTestingTransporter()
   }
 
-  const transporter = nodemailer.createTransport(transport);
-
-  const info = await transporter.sendMail({
-    from: `"Email Verifier" <${transport.auth?.user}>`,
-    to,
-    subject: 'VC Email Verification',
-    text,
-    html: `<p>${text}</p>`,
-  });
+  const info = await emailSender.sendMail(to, text)
 
   logger.info(`Email sent: ${info.messageId}`)
-  if (printMailUrl) logger.info(`Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
+  if (!isProd) logger.info(`Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
 }
 
 async function sendSmsVerificationCode(to: string, text: string) {
   return new Promise<void>((resolve: (msg: any) => void, reject: (err: Error) => void) => {
 
-    if ((process.env.TWILIO_ACCOUNT_SID === undefined) || (process.env.TWILIO_AUTH_TOKEN === undefined)) {
+    if ((config.TWILIO_ACCOUNT_SID === undefined) || (config.TWILIO_AUTH_TOKEN === undefined)) {
       reject(new Error('TWILIO settings missing')); return;
     }
 
-    const client = new Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+    const client = new Twilio(config.TWILIO_ACCOUNT_SID, config.TWILIO_AUTH_TOKEN);
     client.messages
-      .create({ to, from: process.env.TWILIO_PHONE_NUMBER, body: text })
+      .create({ to, from: config.TWILIO_PHONE_NUMBER, body: text })
       .then((message: any) => {
         console.log(`Message Sent ${message.sid}`);
         resolve(`Message Sent ${message.sid}`);
@@ -121,6 +84,6 @@ createConnection({
   setupSmsService(app, { smsVCIssuerInterface, sendSmsVerificationCode }, logger)
 });
 
-const port = process.env.PORT || 5108
+const port = config.PORT || 5108
 
 app.listen(port, () => console.log(`VC Issuer running at http://localhost:${port}`))

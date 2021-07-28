@@ -94,10 +94,10 @@ You can optionally run any of the services. You will need to add some `.env` var
 ### Email verifications
 
 ```dosini
-SMTP_HOST=host of the mail server
-SMTP_PORT=port of the mail server
-SMTP_USER=user to log in to the mail server. Will be used to set the from of the email
-SMTP_PASS=password to log in to the mail server
+SMTP_HOST=
+SMTP_PORT=
+SMTP_USER=
+SMTP_PASS=
 ```
 
 ### Phone verifications
@@ -111,10 +111,11 @@ TWILIO_PHONE_NUMBER=
 ### Optional config
 
 ```env
-LOG_FILE=relative path of the log file
-LOG_ERROR_FILE=relative path of the error log file
-NETWORK_NAME=rsk:testnet or rsk
-PORT=port where the service will be served
+LOG_FILE=./log/email-vc-issuer.log # relative path of the log file
+LOG_ERROR_FILE=./log/email-vc-issuer.log # relative path of the error log file
+NODE_ENV=dev # set it to "dev" to allow
+NETWORK_NAME=rsk # rsk:testnet or rsk, for the issuer DID
+PORT=5108 # port where the service will be served
 ```
 
 ### Run the backend with Docker

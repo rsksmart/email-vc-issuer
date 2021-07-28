@@ -47,6 +47,8 @@ The frontend is a simple app that serves as tool and code example:
 
 Development mode will allow you to run the tool without actual verifications. The verificatoin code will be logged and sent via [Ethereal](https://ethereal.email)
 
+### Setup
+
 1. Install dependencies
 
   ```
@@ -58,12 +60,6 @@ Development mode will allow you to run the tool without actual verifications. Th
 
   ```dosini
   PRIVATE_KEY=ab12cd34... # a 32 bytes private key used to sign the verifiable credentials
-  ```
-
-3. Change the backend url in the front end to point to localhost
-
-  ```
-  REACT_APP_BACK_END_URL=http://localhost:5108
   ```
 
 ### Run tests
@@ -78,14 +74,18 @@ npm test
 npm start
 ```
 
+### Run in watch mode
+
+```
+npm run start:dev
+```
+
 ### Branching model
 
 - `main` has latest release. Merge into `main` will deploy front-end to [email-verifier.identity.rifos.org](https://email-verifier.identity.rifos.org/). Do merge commits.
 - `develop` has latest approved PR. PRs need to pass `ci`, _LGTM_ and _Sonar_. Do squash & merge.
 - Use branches pointing to `develop` to add new PRs.
 - Do external PRs against latest commit in `develop`.
-
-
 
 ## Run for production
 
@@ -117,7 +117,7 @@ NETWORK_NAME=rsk:testnet or rsk
 PORT=port where the service will be served
 ```
 
-## Run the backend with Docker
+### Run the backend with Docker
 
 Create the `.env` following the description above and run it
 

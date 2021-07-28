@@ -12,4 +12,4 @@ COPY ./tsconfig.json ./
 
 EXPOSE 5108
 
-CMD [ "npm", "run", "serve"]
+CMD [ "npm", "run", "start"]

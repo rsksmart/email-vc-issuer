@@ -5,9 +5,10 @@
   "description": "Email Verifiable Credential issuer",
   "main": "index.js",
   "scripts": {
-    "test": "cd back && npm test && cd ../front && yarn test --watchAll=false",
     "setup": "cd back && npm i && cd .. && cd front && yarn",
-    "serve:test": "concurrently \"cd back && npm run serve\" \"cd front && yarn start\""
+    "test": "cd back && npm test && cd ../front && yarn test --watchAll=false",
+    "start": "concurrently \"cd back && npm run serve\" \"cd front && yarn start\"",
+    "start:dev": "concurrently \"cd back && npm run start:dev\" \"cd front && yarn start:dev\""
   },
   "repository": {
     "type": "git",

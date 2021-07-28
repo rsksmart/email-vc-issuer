@@ -119,10 +119,6 @@ createConnection({
 
   setupService(app, { emailVCIssuerInterface, sendVerificationCode }, logger)
   setupSmsService(app, { smsVCIssuerInterface, sendSmsVerificationCode }, logger)
-
-  app.get('/about', (_, res) => {
-    res.status(200).send(`VC Issuer - Read more at <a href="https://github.com/rsksmart/email-vc-issuer">github.com/rsksmart/email-vc-issuer</a>`)
-  })
 });
 
 const port = process.env.PORT || 5108

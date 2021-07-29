@@ -64,6 +64,5 @@ describe('vc', () => {
     expect(issuedVC.subject).toEqual(subject)
     expect(issuedVC.jwt).toEqual(jwt)
   })
-  
 })
 

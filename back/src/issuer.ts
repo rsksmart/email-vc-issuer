@@ -1,14 +1,23 @@
-import { decorateVerificationCode, VerificationRequest } from './verificationRequest'
-import { ecrecover } from './ecrecover'
-import { getAccountFromDID } from './did'
-import { IssuedVC } from './vc'
+import { Connection, Repository } from 'typeorm'
 import { createVerifiableCredentialJwt } from 'did-jwt-vc'
-import { Connection, VerificationRequests, IssuedVCs, Issuer, DecorateVerificationCode, CredentialTemplate, IVCIssuer } from './types'
+import { decorateVerificationCode, VerificationRequest } from './verificationRequest'
+import { IssuedVC } from './vc'
+import { getAccountFromDID } from './did'
+import { ecrecover } from './ecrecover'
+import { Issuer, JwtCredentialPayload } from 'did-jwt-vc'
+
+export interface IVCIssuer {
+  credentialType: string
+  requestVerification(did: string, request: string): Promise<string>
+  verify(did: string, sig: string): Promise<string>
+}
+
+export type CredentialTemplate =  (did: string, subject: string) => JwtCredentialPayload
 
 export class VCIssuer implements IVCIssuer {
   issuer: Issuer
-  issuedVCs: IssuedVCs
-  verificationRequests: VerificationRequests
+  issuedVCs: Repository<IssuedVC>
+  verificationRequests: Repository<VerificationRequest>
   public credentialType: string
   credentialTemplate: CredentialTemplate
 

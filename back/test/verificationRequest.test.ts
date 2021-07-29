@@ -1,6 +1,6 @@
+import MockDate from 'mockdate'
 import { VerificationRequest, decorateVerificationCode } from '../src/verificationRequest'
 import { did, type, subject, code } from './utils'
-import MockDate from 'mockdate'
 
 const size = 32
 const expirationTime = 60000

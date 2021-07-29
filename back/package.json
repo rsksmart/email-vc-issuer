@@ -1,9 +1,9 @@
 {
   "name": "email-vc-issuer-back",
   "private": true,
-  "version": "1.0.0",
-  "description": "Email VC Issuer backend",
-  "main": "dist/scripts/testing.ts",
+  "version": "2.0.0",
+  "description": "VC Issuer backend",
+  "main": "dist/index.js",
   "scripts": {
     "test": "npx jest --coverage",
     "build": "npx tsc",

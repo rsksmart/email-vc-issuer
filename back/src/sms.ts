@@ -1,11 +1,7 @@
-import { Logger } from "@rsksmart/rif-node-utils/lib/logger"
-import { Twilio } from "twilio"
+import { Logger } from '@rsksmart/rif-node-utils/lib/logger'
+import { Twilio } from 'twilio'
 
 export const createSendSMSVerificationCode = (twilio: Twilio, from: string, logger: Logger) => async (to: string, body: string) => {
-  try {
-    const message = await twilio.messages.create({ from, to, body })
-    logger.info(`SMS sent: ${message.sid}`)
-  } catch (e) {
-    logger.error(e)
-  }
+  const message = await twilio.messages.create({ from, to, body })
+  logger.info(`SMS sent: ${message.sid}`)
 }

@@ -2,14 +2,13 @@ import dotenv from 'dotenv'
 import { setupConfig } from './config'
 import { createLogger } from './logger'
 import { createApp } from './server'
-import { createIssuerDID } from './did'
+import { createIssuerIdentity } from './did'
 import { setupApi } from './api'
 import { createConnection } from './db'
 import { Twilio } from 'twilio'
 import { EmailSender, createSendTestEmailVerificationCode, createSendEmailVerificationCode } from './email'
 import { VCIssuer } from './issuer'
 import { createEmailCredentialPayload, createPhoneNumberCredentialPayload } from './vc'
-import { SendVerificationCode } from './types'
 import { createSendSMSVerificationCode } from './sms'
 
 dotenv.config()
@@ -19,12 +18,12 @@ const logger = createLogger(config.NODE_ENV, config.LOG_FILE, config.LOG_ERROR_F
 
 const app = createApp()
 
-const identity = createIssuerDID(config.PRIVATE_KEY, config.NETWORK_NAME)
+const identity = createIssuerIdentity(config.PRIVATE_KEY, config.NETWORK_NAME)
 logger.info(`Service DID: ${identity.did}`)
 
 async function main () {
   let emailSender: EmailSender
-  let sendEmailVerificationCode: SendVerificationCode
+  let sendEmailVerificationCode
 
   if (config.NODE_ENV === 'dev') {
     emailSender = await EmailSender.createTestingTransporter()

@@ -1,17 +1,17 @@
-import { createIssuerDID } from '../src/did'
-import { VCIssuer } from '../src/issuer'
-import { did, issuerPrivateKey, subject, type, issuerDid } from './utils'
-import { createEmailCredentialPayload, IssuedVC } from '../src/vc'
 import { createConnection, Connection } from 'typeorm'
 import fs from 'fs'
-import { decorateVerificationCode, VerificationRequest } from '../src/verificationRequest'
-import { rpcPersonalSign } from './personalSign'
 import { Resolver } from 'did-resolver'
 import { getResolver } from 'ethr-did-resolver'
 import { verifyCredential } from 'did-jwt-vc'
 import MockDate from 'mockdate'
+import { VCIssuer } from '../src/issuer'
+import { createIssuerIdentity } from '../src/did'
+import { createEmailCredentialPayload, IssuedVC } from '../src/vc'
+import { decorateVerificationCode, VerificationRequest } from '../src/verificationRequest'
+import { did, issuerPrivateKey, subject, type, issuerDid } from './utils'
+import { rpcPersonalSign } from './personalSign'
 
-const userPrivateKey = Buffer.from('876d78e89797cf2cf9441e4d0d111589cd8b36a20485d4073d03193e2f3d4861', 'hex')
+const userPrivateKey = Buffer.from('876d78e89797cf2cf9441e4d0d111589cd8b36a20485d4073d03193e2f3d4861', 'hex') // do not use
 const userDid = 'did:ethr:rsk:0x87eb390df1e05ef0560e387206f5997034cd6f28'
 
 export const resolver = new Resolver(getResolver({
@@ -27,7 +27,7 @@ describe('issuer', function (this: {
   issue: () => Promise<string>
 }) {
   beforeEach(async () => {
-    const identity = createIssuerDID(issuerPrivateKey, 'rsk:testnet')
+    const identity = createIssuerIdentity(issuerPrivateKey, 'rsk:testnet')
     this.database = `issuer-test-${+Date.now()}.sqlite`
     this.connection = await createConnection({
       type: 'sqlite',
@@ -80,7 +80,7 @@ describe('issuer', function (this: {
     })
 
     test('fails if invalid signer', async () => {
-      const otherPrivateKey = Buffer.from('c96773b3daf3d927a502fa454aeec0f58fb4bf832ba827386cd079fc2cab1851', 'hex')
+      const otherPrivateKey = Buffer.from('c96773b3daf3d927a502fa454aeec0f58fb4bf832ba827386cd079fc2cab1851', 'hex') // do not use
       const code = await this.vcIssuer.requestVerification(userDid, subject)
       const sig = rpcPersonalSign(decorateVerificationCode(code), otherPrivateKey)
       await expect(() => this.vcIssuer.verify(did, sig)).rejects.toThrowError()

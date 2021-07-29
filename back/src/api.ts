@@ -1,7 +1,9 @@
 import { Express } from 'express'
 import bodyParser from 'body-parser'
 import { Logger } from '@rsksmart/rif-node-utils/lib/logger'
-import { SendVerificationCode, IVCIssuer } from './types'
+import { IVCIssuer } from './issuer'
+
+export type SendVerificationCode = (to: string, text: string) => Promise<void>
 
 export function setupApi(app: Express, prefix: string, vcIssuer: IVCIssuer, sendVerificationCode: SendVerificationCode, logger: Logger) {
   app.post(prefix + '/requestVerification/:did', bodyParser.json(), async (req, res) => {

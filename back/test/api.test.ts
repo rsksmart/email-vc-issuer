@@ -1,8 +1,8 @@
 import express from 'express'
 import request from 'supertest'
 import { loggerFactory } from '@rsksmart/rif-node-utils/lib/logger'
-import { setupApi } from '../src/api'
-import { IVCIssuer, SendVerificationCode } from '../src/types'
+import { setupApi, SendVerificationCode } from '../src/api'
+import { IVCIssuer } from '../src/issuer'
 import { did, type, subject, code, jwt } from './utils'
 
 class VCIssuerMock implements IVCIssuer {
@@ -41,13 +41,13 @@ describe('api', function (this: {
   })
 
   describe('request verification', () => {
-    test('cannot request with no subject', () => request(this.app)
+    test('request with no subject responses 500', () => request(this.app)
       .post(requestVerificationUrl)
       .send({})
       .then(({ status }) => expect(status).toEqual(500))
     )
 
-    test('cannot request with empty subject', () => request(this.app)
+    test('request with empty subject responses 500', () => request(this.app)
       .post(requestVerificationUrl)
       .send({ subject: '' })
       .then(({ status }) => expect(status).toEqual(500))
@@ -62,13 +62,13 @@ describe('api', function (this: {
       expect(this.sendVerificationCode.mock.results[0]).toEqual({ type: 'return' })
     })
 
-    test('fails creating verification code', async () => {
+    test('fails creating verification code responses 500', async () => {
       this.vcIssuer.requestVerificatonFails = true
       const response = await request(this.app).post(requestVerificationUrl).send({ subject })
       expect(response.status).toEqual(500)
     })
 
-    test('fails sending verificatoin code', async () => {
+    test('fails sending verification code responses 500', async () => {
       const rejectValue = 'Testing Error'
       this.sendVerificationCode.mockRejectedValue(rejectValue)
       const response = await request(this.app).post(requestVerificationUrl).send({ subject })
@@ -86,7 +86,7 @@ describe('api', function (this: {
       expect(response.body.jwt).toEqual(jwt)
     })
 
-    test('fail verifying', async () => {
+    test('fails verifying responses 500', async () => {
       this.vcIssuer.verifyFails = true
       const response = await request(this.app).post(verifyUrl).send({ did, sig: 'sig' })
       expect(response.status).toEqual(500)

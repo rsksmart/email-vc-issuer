@@ -1,90 +1,41 @@
 import { Express } from 'express'
 import bodyParser from 'body-parser'
-import EmailVCIssuerInterface from './model/EmailVCIssuerInterface'
-import SmsVCIssuerInterface from './model/SmsVCIssuerInterface'
 import { Logger } from '@rsksmart/rif-node-utils/lib/logger'
+import { SendVerificationCode, IVCIssuer } from './types'
 
-interface Options {
-  emailVCIssuerInterface: EmailVCIssuerInterface
-  sendVerificationCode: (to: string, text: string) => Promise<void>
-}
-
-interface OptionsSms {
-  smsVCIssuerInterface: SmsVCIssuerInterface
-  sendSmsVerificationCode: (to: string, text: string) => Promise<void>
-}
-
-
-export const UNHANDLED_ERROR_MESSAGE = 'Unhandled error'
-
-export function setupService(app: Express, { emailVCIssuerInterface, sendVerificationCode}: Options, logger: Logger) {
-  app.post('/requestVerification/:did', bodyParser.json(), async (req, res) => {
+export function setupApi(app: Express, prefix: string, vcIssuer: IVCIssuer, sendVerificationCode: SendVerificationCode, logger: Logger) {
+  app.post(prefix + '/requestVerification/:did', bodyParser.json(), async (req, res) => {
     const { did } = req.params
-    const { emailAddress } = req.body
+    const { subject } = req.body
 
-    logger.info(`Requested verification for email ${emailAddress} with did ${did}`)
+    if ((subject === undefined) || (subject === '')) return res.status(500).send('Subject not set')
 
-    if ((emailAddress === undefined) || (emailAddress === '')){
-      res.status(500).send(UNHANDLED_ERROR_MESSAGE)
-      return
+    logger.info(`Requested verification - type: ${vcIssuer.credentialType} - subject: ${subject} - did: ${did}`)
+
+    try {
+      const verificationCode = await vcIssuer.requestVerification(did, subject)
+      await sendVerificationCode(subject, verificationCode)
+      logger.info(`Verification code sent`)
+      return res.status(200).send()
+    } catch (e) {
+      const title = 'Error sending verification code'
+      logger.error(title, e)
+      return res.status(500).send(title)
     }
-
-    const verificationCode = await emailVCIssuerInterface.requestVerificationFor(did, emailAddress)
-
-    sendVerificationCode(emailAddress, verificationCode)
-
-    res.status(200).send()
   })
 
-  app.post('/verify/:did', bodyParser.json(), async (req, res) => {
+  app.post(prefix + '/verify/:did', bodyParser.json(), async (req, res) => {
     const { did } = req.params
     const { sig } = req.body
 
     try {
-      const jwt = await emailVCIssuerInterface.verify(did, sig)
+      const jwt = await vcIssuer.verify(did, sig)
       logger.info(`Email Credential issued for did ${did}`)
-      res.status(200).send({ jwt })
+      return res.status(200).send({ jwt })
     } catch (e) {
-      logger.error('Caught error when issuing VC', e)
-      res.status(500).send(UNHANDLED_ERROR_MESSAGE)
-    }
-  })
-
-}
-
-export function setupSmsService(app: Express, { smsVCIssuerInterface, sendSmsVerificationCode }: OptionsSms, logger: Logger) {
-
-  app.post('/requestSmsVerification/:did', bodyParser.json(), async (req, res) => {
-    const { did } = req.params
-    const { phoneNumber } = req.body
-
-    logger.info(`Requested verification for phone  ${phoneNumber} with did ${did}`)
-
-    if ((phoneNumber === undefined) || (phoneNumber === '')){
-      res.status(500).send(UNHANDLED_ERROR_MESSAGE)
-      return
-    }
-
-
-    const verificationCode = await smsVCIssuerInterface.requestVerificationFor(did, phoneNumber)
-
-    sendSmsVerificationCode(phoneNumber, verificationCode)
-
-    res.status(200).send()
-  })
-
-  app.post('/verifySms/:did', bodyParser.json(), async (req, res) => {
-    const { did } = req.params
-    const { sig } = req.body
-
-    try {
-      const jwt = await smsVCIssuerInterface.verify(did, sig)
-      logger.info(`SMS Credential issued for did ${did}`)
-      res.status(200).send({ jwt })
-    } catch (e) {
-      logger.error('Caught error when issuing SMS VC', e)
-      res.status(500).send(UNHANDLED_ERROR_MESSAGE)
+      const title = 'Error verifying'
+      logger.error(title, e)
+      return res.status(500).send(title)
     }
   })
 }
-

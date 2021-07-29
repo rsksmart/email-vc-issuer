@@ -1,30 +1,9 @@
-import { ecsign, hashPersonalMessage, toRpcSig } from 'ethereumjs-util'
-import { Connection, createConnection } from 'typeorm'
-import IssuedEmailVC from '../src/model/entities/issued-vc'
-import IssuedSmsVC from '../src/model/entities/issued-vc-sms'
-import fs from 'fs'
-import DidCode from '../src/model/entities/did-code'
+export const account = '0x87eb390df1e05ef0560e387206f5997034cd6f28'
+export const did = 'did:ethr:rsk:0x87eb390df1e05ef0560e387206f5997034cd6f28'
+export const type = 'Test'
+export const subject = 'Claim!'
+export const code = 'CODE'
+export const jwt = 'jwt'
 
-export const rpcPersonalSign = (msg: string, privateKey: Buffer) => {
-  const msgHash = hashPersonalMessage(Buffer.from(msg))
-  const { v, r, s } = ecsign(msgHash, privateKey)
-  return toRpcSig(v, r, s)
-}
-
-export const createSqliteConnection = (database: string) => createConnection({
-  type: 'sqlite',
-  database,
-  entities: [IssuedEmailVC, IssuedSmsVC, DidCode],
-  logging: false,
-  dropSchema: true,
-  synchronize: true
-})
-
-export const resetDatabase = async (dbConnection: Connection) => {
-  await dbConnection.dropDatabase()
-  await dbConnection.synchronize()
-}
-
-export const deleteDatabase = (connection: Connection, database: string) => connection.close().then(() => {
-  if (fs.existsSync(database)) fs.unlinkSync(database)
-})
+export const issuerPrivateKey = '2ba827386cd079fc2cab1851c96773b3daf3d927a502fa454aeec0f58fb4bf83' // do not use
+export const issuerDid = 'did:ethr:rsk:testnet:0x0099767c0c06e8015232b5ab13cb9650a8cb029b'

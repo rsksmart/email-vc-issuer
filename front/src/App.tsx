@@ -83,7 +83,7 @@ function App() {
     })
     .catch(handleError)
 
-  const requestVerification = () => fetch(`${backUrl}/requestVerification/` + did, {
+  const requestVerification = () => fetch(`${backUrl}/email/requestVerification/` + did, {
     method: 'POST',
     mode: 'cors',
     cache: 'no-cache',
@@ -93,7 +93,7 @@ function App() {
     },
     redirect: 'follow',
     referrerPolicy: 'no-referrer',
-    body: JSON.stringify({ emailAddress })
+    body: JSON.stringify({ subject: emailAddress })
   }).then(() => {
     setWasEmailSent(true)
   }).catch(handleError)
@@ -104,7 +104,7 @@ function App() {
       `Verification code: ${verificationCode}`, // includes the decoration
       account
     ]
-  }).then((sig: string) => fetch(`${backUrl}/verify/` + did, {
+  }).then((sig: string) => fetch(`${backUrl}/email/verify/` + did, {
     method: 'POST',
     mode: 'cors',
     cache: 'no-cache',

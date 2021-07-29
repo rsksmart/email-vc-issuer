@@ -56,7 +56,7 @@ Development mode will allow you to run the tool without actual verifications. Th
   npm run setup
   ```
 
-2. Configure the backend, create a `.env` file with
+2. Configure the backend, create a `.env` file in './back' folder with
 
   ```dosini
   PRIVATE_KEY=ab12cd34... # a 32 bytes private key used to sign the verifiable credentials
@@ -117,7 +117,6 @@ TWILIO_PHONE_NUMBER=
 ```env
 LOG_FILE=./log/email-vc-issuer.log # relative path of the log file
 LOG_ERROR_FILE=./log/email-vc-issuer.log # relative path of the error log file
-NODE_ENV=dev # set it to "dev" to allow
 NETWORK_NAME=rsk # rsk:testnet or rsk, for the issuer DID
 PORT=5108 # port where the service will be served
 ```

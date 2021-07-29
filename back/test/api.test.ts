@@ -1,87 +1,95 @@
-import express, { Express } from 'express'
+import express from 'express'
 import request from 'supertest'
-import { verifyCredential } from 'did-jwt-vc'
-import { createSqliteConnection, deleteDatabase, resetDatabase, rpcPersonalSign } from './utils'
-import { issuer, resolver, decorateVerificationCode, did, privateKey, emailAddress, anotherPrivateKey } from './mocks'
-import { setupService, UNHANDLED_ERROR_MESSAGE } from '../src/api'
-import EmailVCIssuerInterface, { INVALID_SIGNATURE_ERROR_MESSAGE } from '../src/model/EmailVCIssuerInterface'
-import { CODE_NOT_GENERATED_ERROR_MESSAGE } from '../src/model/VerificationCodeChecker'
-import { Logger } from '@rsksmart/rif-node-utils/lib/logger'
-import { Connection, Repository } from 'typeorm'
-import IssuedEmailVC from '../src/model/entities/issued-vc'
+import { loggerFactory } from '@rsksmart/rif-node-utils/lib/logger'
+import { setupApi } from '../src/api'
+import { IVCIssuer, SendVerificationCode } from '../src/types'
+import { did, type, subject, code, jwt } from './utils'
 
-const mockedLogger = { info: () => {}, error: () => {} } as unknown as Logger
+class VCIssuerMock implements IVCIssuer {
+  public requestVerificatonFails = false
+  public verifyFails = false
 
-describe('service', function (this: {
-  sendVerificationCode: (to: string, text: string) => Promise<void>
-  lastVerificationCodeSent: string
-  app: Express
-  dbConnection: Connection
-  repository: Repository<IssuedEmailVC>
-}) {
-  const database = './email-vc-issuer-api.test.sqlite'
+  credentialType = type
+  requestVerification = (did: string, request: string) => this.requestVerificatonFails ? Promise.reject() : Promise.resolve(code)
+  verify = (did: string, sig: string): Promise<string> => this.verifyFails ? Promise.reject() : Promise.resolve(jwt)
+}
 
-  this.sendVerificationCode = (to: string, text: string) => {
-    this.lastVerificationCodeSent = text
-    return Promise.resolve()
+const prefix = '/test'
+const requestVerificationUrl = `${prefix}/requestVerification/${did}`
+const verifyUrl = `${prefix}/verify/${did}`
+
+const getError = async (value: Promise<any>) => {
+  try {
+    await value
+  } catch(e) {
+    return e
   }
+  throw new Error('Didn\'t fail')
+}
 
-  beforeAll(async () => {
-    this.dbConnection = await createSqliteConnection(database)
-  })
-
-  afterAll(() => deleteDatabase(this.dbConnection, database))
-
+describe('api', function (this: {
+  app: ReturnType<typeof express>
+  vcIssuer: VCIssuerMock
+  sendVerificationCode: jest.MockedFunction<SendVerificationCode>
+}) {
   beforeEach(async () => {
-    await resetDatabase(this.dbConnection)
     this.app = express()
-    const emailVCIssuerInterface = new EmailVCIssuerInterface(issuer, this.dbConnection, decorateVerificationCode)
-    setupService(this.app, { emailVCIssuerInterface, sendVerificationCode: this.sendVerificationCode }, mockedLogger)
+    this.vcIssuer = new VCIssuerMock()
+    this.sendVerificationCode = jest.fn()
+    const logger = loggerFactory({ env: 'test', infoFile: './log/api-test-info.log', errorFile: './api-test-error.log' })('test')
+    setupApi(this.app, prefix, this.vcIssuer, this.sendVerificationCode, logger)
   })
 
-  test('verifies an email', async () => {
-    await request(this.app).post(`/requestVerification/${did}`).send({ emailAddress })
+  describe('request verification', () => {
+    test('cannot request with no subject', () => request(this.app)
+      .post(requestVerificationUrl)
+      .send({})
+      .then(({ status }) => expect(status).toEqual(500))
+    )
 
-    const sig = rpcPersonalSign(decorateVerificationCode(this.lastVerificationCodeSent), privateKey)
+    test('cannot request with empty subject', () => request(this.app)
+      .post(requestVerificationUrl)
+      .send({ subject: '' })
+      .then(({ status }) => expect(status).toEqual(500))
+    )
 
-    const jwt = await request(this.app).post(`/verify/${did}`).send({ sig }).then((res: any) => res.body.jwt)
+    test('sends verificatoin code', async () => {
+      const response = await request(this.app).post(requestVerificationUrl).send({ subject })
+      expect(response.status).toEqual(200)
+      expect(this.sendVerificationCode.mock.calls).toHaveLength(1)
+      expect(this.sendVerificationCode.mock.calls[0]).toEqual([subject, code])
+      expect(this.sendVerificationCode.mock.results).toHaveLength(1)
+      expect(this.sendVerificationCode.mock.results[0]).toEqual({ type: 'return' })
+    })
 
-    const { verifiableCredential } = await verifyCredential(jwt, resolver)
+    test('fails creating verification code', async () => {
+      this.vcIssuer.requestVerificatonFails = true
+      const response = await request(this.app).post(requestVerificationUrl).send({ subject })
+      expect(response.status).toEqual(500)
+    })
 
-    expect(verifiableCredential.credentialSubject.emailAddress).toEqual(emailAddress)
-    expect(verifiableCredential.credentialSubject.id).toEqual(did)
-    expect(verifiableCredential.issuer.id).toEqual(issuer.did)
-
-  })
-
-  test('500 when invalid signer', async () => {
-    await request(this.app).post(`/requestVerification/${did}`).send({ emailAddress })
-
-    const sig = rpcPersonalSign(decorateVerificationCode(this.lastVerificationCodeSent), anotherPrivateKey)
-
-    await request(this.app).post(`/verify/${did}`).send({ sig }).then((res: any) => {
-      expect(res.statusCode).toEqual(500)
-      expect(res.text).toEqual(UNHANDLED_ERROR_MESSAGE)
+    test('fails sending verificatoin code', async () => {
+      const rejectValue = 'Testing Error'
+      this.sendVerificationCode.mockRejectedValue(rejectValue)
+      const response = await request(this.app).post(requestVerificationUrl).send({ subject })
+      expect(response.status).toEqual(500)
+      expect(this.sendVerificationCode.mock.results).toHaveLength(1)
+      expect(this.sendVerificationCode.mock.results[0].type).toEqual('return')
+      expect(await getError(this.sendVerificationCode.mock.results[0].value)).toEqual(rejectValue)
     })
   })
 
-  test('500 when invalid verification code', async () => {
-    await request(this.app).post(`/requestVerification/${did}`).send({ emailAddress })
-
-    const sig = rpcPersonalSign(decorateVerificationCode('INVALID VERIFICATION CODE'), anotherPrivateKey)
-
-    await request(this.app).post(`/verify/${did}`).send({ sig }).then((res: any) => {
-      expect(res.statusCode).toEqual(500)
-      expect(res.text).toEqual(UNHANDLED_ERROR_MESSAGE)
+  describe('verify', () => {
+    test('verifies code', async () => {
+      const response = await request(this.app).post(verifyUrl).send({ did, sig: 'sig' })
+      expect(response.status).toEqual(200)
+      expect(response.body.jwt).toEqual(jwt)
     })
-  })
 
-  test('500 when no verification code requested', async () => {
-    const sig = rpcPersonalSign(decorateVerificationCode('A VERIFICATION CODE'), anotherPrivateKey)
-
-    await request(this.app).post(`/verify/${did}`).send({ sig }).then((res: any) => {
-      expect(res.statusCode).toEqual(500)
-      expect(res.text).toEqual(UNHANDLED_ERROR_MESSAGE)
+    test('fail verifying', async () => {
+      this.vcIssuer.verifyFails = true
+      const response = await request(this.app).post(verifyUrl).send({ did, sig: 'sig' })
+      expect(response.status).toEqual(500)
     })
   })
 })

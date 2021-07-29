@@ -138,3 +138,28 @@ docker-compose up -d
 The tool will make the user digirally sign a verificatoin code that is sent via email/phone. This will proove that the user controls the asset and the wallet. The backend will verify this signature, sign a [Verifiable Credentials](https://www.w3.org/TR/vc-data-model/) and send it to the user. The user can then save to their [Data Vault](https://github.com/rsksmart/rif-data-vault)
 
 ![](sequence.png)
+
+## Adding new verifiers
+
+The service is built to make easy to add new verification services. You need to:
+1. Create a function "create payload" that will create the VC
+2. Instanciate `VCIssuer` with the desired `credentialType`
+3. Create your "send verificatoin code" function
+4. Set up the API using `setupApi` and a desired `prefix`
+
+The best example is Twilo integration
+
+```typescript
+const twilio = new Twilio(config.TWILIO_ACCOUNT_SID, config.TWILIO_AUTH_TOKEN)
+
+const sendSmsVerificationCode = async (to: string, body: string) => {
+  const message = await twilio.messages.create({ from, to, body })
+  logger.info(`SMS sent: ${message.sid}`)
+}
+
+const phoneVCIssuer = new VCIssuer(identity, connection, 'PhoneNumber', createPhoneNumberCredentialPayload)
+setupApi(app, '/phone', phoneVCIssuer, sendSmsVerificationCode, logger)
+logger.info(`Phone verificatoins feature ready`)
+```
+
+To add it to the front end you will just need to create a new option in the credential type selector and choose a Data Vault key for it.

@@ -11,8 +11,18 @@ import { VCIssuer } from './issuer'
 import { createEmailCredentialPayload, createPhoneNumberCredentialPayload } from './vc'
 import { createSendSMSVerificationCode } from './sms'
 
+console.log(`
+██    ██  ██████     ██ ███████ ███████ ██    ██ ███████ ██████
+██    ██ ██          ██ ██      ██      ██    ██ ██      ██   ██
+██    ██ ██          ██ ███████ ███████ ██    ██ █████   ██████
+ ██  ██  ██          ██      ██      ██ ██    ██ ██      ██   ██
+  ████    ██████     ██ ███████ ███████  ██████  ███████ ██   ██
+`)
+
 dotenv.config()
 const config = setupConfig(process.env)
+
+console.log('Config', config)
 
 const logger = createLogger(config.NODE_ENV, config.LOG_FILE, config.LOG_ERROR_FILE)
 
@@ -26,9 +36,11 @@ async function main () {
   let sendEmailVerificationCode
 
   if (config.NODE_ENV === 'dev') {
+    logger.info(`Setting up testing mail sender`)
     emailSender = await EmailSender.createTestingTransporter()
     sendEmailVerificationCode = createSendTestEmailVerificationCode(emailSender, logger)
   } else {
+    logger.info(`Setting up mail sender`)
     emailSender = EmailSender.createTransporter(config.SMTP_HOST!, Number(config.SMTP_PORT!), config.SMTP_USER!, config.SMTP_PASS!)
     sendEmailVerificationCode = createSendEmailVerificationCode(emailSender, logger)
   }
@@ -37,18 +49,19 @@ async function main () {
 
   const emailVCIssuer = new VCIssuer(identity, connection, 'Email', createEmailCredentialPayload)
   setupApi(app, '/email', emailVCIssuer, sendEmailVerificationCode, logger)
+  logger.info(`Email verificatoins feature ready`)
 
   if (config.TWILIO_ACCOUNT_SID && config.TWILIO_AUTH_TOKEN && config.TWILIO_PHONE_NUMBER) {
+    logger.info(`Setting up phone verificatoins`)
     const twilio = new Twilio(config.TWILIO_ACCOUNT_SID, config.TWILIO_AUTH_TOKEN);
     const sendSmsVerificationCode = createSendSMSVerificationCode(twilio, config.TWILIO_PHONE_NUMBER, logger)
 
-    const smsVCIssuer = new VCIssuer(identity, connection, 'PhoneNumber', createPhoneNumberCredentialPayload)
-    setupApi(app, '/phone', smsVCIssuer, sendSmsVerificationCode, logger)
+    const phoneVCIssuer = new VCIssuer(identity, connection, 'PhoneNumber', createPhoneNumberCredentialPayload)
+    setupApi(app, '/phone', phoneVCIssuer, sendSmsVerificationCode, logger)
+    logger.info(`Phone verificatoins feature ready`)
   }
 
-  const port = config.PORT
-
-  app.listen(port, () => console.log(`VC Issuer running at http://localhost:${port}`))
+  app.listen(config.PORT, () => logger.info(`VC Issuer running at http://localhost:${config.PORT}`))
 }
 
 main()

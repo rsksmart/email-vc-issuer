@@ -24,7 +24,7 @@
   </a>
 </p>
 
-Use this tool to issue Verifiable Credential claming email and phone verifications
+Use this tool to issue Verifiable Credentials claming email and phone verifications.
 
 Try it out at [email-verifier.identity.rifos.org](https://email-verifier.identity.rifos.org/)
 
@@ -32,16 +32,16 @@ Try it out at [email-verifier.identity.rifos.org](https://email-verifier.identit
 
 The backend enables email and phone verificatoins:
 
-- Email verificatoins -- uses [`nodemailer`](https://github.com/nodemailer/nodemailer)
-- Phones verifications sending SMS -- uses [Twilo](https://www.twilio.com/)
-- Verifies digital signatures -- uses [`ethereumjs-util`](https://github.com/ethereumjs/ethereumjs-util)
-- Issues Verifiable Credentials -- uses [`did-jwt-vc`](https://github.com/decentralized-identity/did-jwt-vc)
+- Email verificatoins - uses [`nodemailer`](https://github.com/nodemailer/nodemailer)
+- Phones verifications sending SMS - uses [Twilo](https://www.twilio.com/)
+- Verifies digital signatures - uses [`ethereumjs-util`](https://github.com/ethereumjs/ethereumjs-util)
+- Issues Verifiable Credentials - uses [`did-jwt-vc`](https://github.com/decentralized-identity/did-jwt-vc)
 - Saves the issued credentials in a database - uses [`typeorm`](https://typeorm.io/#/) and SQLite
 
 The frontend is a simple app that serves as tool and code example:
 
-- Integrates RSK compatible wallets -- uses [`@rsksmart/rLogin`](https://github.com/rsksmart/rLogin)
-- Allows to save credentials in the [RIF Data Vault](https://github.com/rsksmart/rif-data-vault)
+- Integrates RSK compatible wallets - uses [`@rsksmart/rLogin`](https://github.com/rsksmart/rLogin)
+- Allows to save credentials in the cloud - uses [RIF Data Vault](https://github.com/rsksmart/rif-data-vault)
 
 ## Run for development
 

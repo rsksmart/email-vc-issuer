@@ -2,14 +2,32 @@ import express from 'express'
 import cors from 'cors'
 import rateLimit from 'express-rate-limit'
 
+var whitelist = ['https://email-verifier.identity.rifos.org', 'https://identity.rifos.org/']
+
+var corsOptions: Parameters<typeof cors>[0] = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin!) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  }
+}
+
 export const createApp = () => {
   const app = express()
-  app.use(cors())
+  app.use(cors(corsOptions))
 
   const limiter = rateLimit({
     windowMs: 1000, // 1 minute
     max: 5
   });
+
+  // this enables cross-origin requests
+  app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', req.headers.origin as string)
+    next()
+  })
 
   app.use(limiter);
 

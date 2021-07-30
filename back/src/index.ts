@@ -28,12 +28,6 @@ const logger = createLogger(config.NODE_ENV, config.LOG_FILE, config.LOG_ERROR_F
 
 const app = createApp()
 
-// this enables cross-origin requests
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', req.headers.origin as string)
-  next()
-})
-
 const identity = createIssuerIdentity(config.PRIVATE_KEY, config.NETWORK_NAME)
 logger.info(`Service DID: ${identity.did}`)
 

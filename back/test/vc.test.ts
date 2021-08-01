@@ -43,10 +43,10 @@ describe('vc', () => {
         ],
         type: [
           'VerifiableCredential',
-          'PhoneNumber'
+          'Phone'
         ],
         credentialSchema: {
-          id: '???',
+          id: 'did:ethr:rsk:0x8a32da624dd9fad8bf4f32d9456f374b60d9ad28;id=41ab7167-d98a-4572-b8de-fcc32289728c;version=1.0',
           type: 'JsonSchemaValidator2018'
         },
         credentialSubject: { phoneNumber: subject },

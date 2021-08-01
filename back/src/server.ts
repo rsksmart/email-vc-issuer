@@ -2,9 +2,9 @@ import express from 'express'
 import cors from 'cors'
 import rateLimit from 'express-rate-limit'
 
-var whitelist = ['https://email-verifier.identity.rifos.org', 'https://identity.rifos.org/']
+export const whitelist = ['http://localhost:3000', 'https://email-verifier.identity.rifos.org', 'https://identity.rifos.org/']
 
-var corsOptions: Parameters<typeof cors>[0] = {
+const corsOptions: Parameters<typeof cors>[0] = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin!) !== -1) {
       callback(null, true)

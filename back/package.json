@@ -5,7 +5,7 @@
   "description": "VC Issuer backend",
   "main": "dist/index.js",
   "scripts": {
-    "test": "npx jest --coverage",
+    "test": "npx jest --coverage --verbose",
     "build": "npx tsc",
     "build:watch": "npx tsc --watch",
     "serve": "node dist/index.js",

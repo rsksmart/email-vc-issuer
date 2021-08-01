@@ -5,7 +5,7 @@ import { IVCIssuer } from './issuer'
 
 export type SendVerificationCode = (to: string, text: string) => Promise<void>
 
-export function setupApi(app: Express, prefix: string, vcIssuer: IVCIssuer, sendVerificationCode: SendVerificationCode, logger: Logger) {
+export function setupApi(app: Express, prefix: string, vcIssuer: IVCIssuer, sendVerificationCode: SendVerificationCode, logger: Logger): void {
   app.post(prefix + '/requestVerification/:did', bodyParser.json(), async (req, res) => {
     const { did } = req.params
     const { subject } = req.body

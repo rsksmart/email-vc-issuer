@@ -1,11 +1,11 @@
 import { randomBytes }  from 'crypto'
 import { Entity, Column, PrimaryColumn } from 'typeorm'
 
-export const decorateVerificationCode = (code: string) => `Verification code: ${code}`
+export const decorateVerificationCode = (code: string): string => `Verification code: ${code}`
 
 @Entity()
 export class VerificationRequest {
-  constructor (did: string, type: string, subject: string, codeSize: number = 32, expirationTime = 600000) { // default expiration 10 min
+  constructor (did: string, type: string, subject: string, codeSize = 32, expirationTime = 600000) { // default expiration 10 min
     this.did = did
     this.type = type
     this.subject = subject
@@ -29,7 +29,7 @@ export class VerificationRequest {
   @Column('integer')
   expirationTime!: number;
 
-  hasExpired() {
+  hasExpired(): boolean {
     return Date.now() > this.expirationTime
   }
 }

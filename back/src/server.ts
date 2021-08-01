@@ -14,7 +14,7 @@ const corsOptions: Parameters<typeof cors>[0] = {
   }
 }
 
-export const createApp = () => {
+export const createApp = (): Express.Application => {
   const app = express()
   app.use(cors(corsOptions))
 

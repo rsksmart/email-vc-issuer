@@ -72,12 +72,12 @@ export class VCIssuer implements IVCIssuer {
     await this.issuedVCs.save(newIssuedVC)
   }
 
-  async requestVerification(did: string, request: string) {
+  async requestVerification(did: string, request: string): Promise<string> {
     const verificationRequest = await this.createRequest(did, request)
     return verificationRequest.code
   }
 
-  async verify(did: string, sig: string) {
+  async verify(did: string, sig: string): Promise<string> {
     const verificationRequest = await this.getRequest(did)
     if (verificationRequest.hasExpired()) throw new Error('Request has expired')
 

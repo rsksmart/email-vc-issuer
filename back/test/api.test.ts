@@ -10,7 +10,9 @@ class VCIssuerMock implements IVCIssuer {
   public verifyFails = false
 
   credentialType = type
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   requestVerification = (did: string, request: string) => this.requestVerificatonFails ? Promise.reject() : Promise.resolve(code)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   verify = (did: string, sig: string): Promise<string> => this.verifyFails ? Promise.reject() : Promise.resolve(jwt)
 }
 
@@ -18,11 +20,11 @@ const prefix = '/test'
 const requestVerificationUrl = `${prefix}/requestVerification/${did}`
 const verifyUrl = `${prefix}/verify/${did}`
 
-const getError = async (value: Promise<any>) => {
+const getMockError = async (value: Promise<any>): Promise<Error> => {
   try {
     await value
-  } catch(e) {
-    return e
+  } catch(e: any) {
+    return e as Error
   }
   throw new Error('Didn\'t fail')
 }
@@ -75,7 +77,7 @@ describe('api', function (this: {
       expect(response.status).toEqual(500)
       expect(this.sendVerificationCode.mock.results).toHaveLength(1)
       expect(this.sendVerificationCode.mock.results[0].type).toEqual('return')
-      expect(await getError(this.sendVerificationCode.mock.results[0].value)).toEqual(rejectValue)
+      expect(await getMockError(this.sendVerificationCode.mock.results[0].value)).toEqual(rejectValue)
     })
   })
 

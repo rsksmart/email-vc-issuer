@@ -11,7 +11,7 @@ export class EmailSender {
     this.mail = transporter
   }
 
-  sendMail = (to: string, text: string) => this.mail.sendMail({
+  sendMail = (to: string, text: string): Promise<any> => this.mail.sendMail({
     from: `"Email Verifier" <${this.user}>`,
     to,
     subject: 'VC Email Verification',
@@ -19,7 +19,7 @@ export class EmailSender {
     html: `<p>${text}</p>`,
   })
 
-  static createTransporter = (host: string, port: number, user: string, pass: string) => {
+  static createTransporter(host: string, port: number, user: string, pass: string): EmailSender {
     const transporter = createTransport({
       host,
       port,
@@ -30,7 +30,7 @@ export class EmailSender {
     return new EmailSender(user, transporter)
   }
 
-  static createTestingTransporter = async () => {
+  static async createTestingTransporter(): Promise<EmailSender> {
     const testAccount = await createTestAccount()
     const transporter = createTransport({
       ...testAccount.smtp,
@@ -40,7 +40,9 @@ export class EmailSender {
   }
 }
 
-export const createSendEmailVerificationCode = (emailSender: EmailSender, logger: Logger) => async (to: string, text: string) => {
+type SendEmialVerificatoinCode = (emailSender: EmailSender, logger: Logger) => (to: string, text: string) => Promise<void>
+
+export const createSendEmailVerificationCode: SendEmialVerificatoinCode = (emailSender, logger) => async (to, text) => {
   try {
     const info = await emailSender.sendMail(to, text)
     logger.info(`Email sent: ${info.messageId}`)
@@ -49,7 +51,7 @@ export const createSendEmailVerificationCode = (emailSender: EmailSender, logger
   }
 }
 
-export const createSendTestEmailVerificationCode = (emailSender: EmailSender, logger: Logger) => async (to: string, text: string) => {
+export const createSendTestEmailVerificationCode: SendEmialVerificatoinCode = (emailSender, logger) => async (to, text) => {
   const info = await emailSender.sendMail(to, text)
 
   logger.info(`Email sent: ${info.messageId}`)

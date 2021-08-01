@@ -15,7 +15,7 @@ describe('server', function (this: {
   })
 
   describe('whitelist', () => {
-    for (let origin of whitelist) {
+    for (const origin of whitelist) {
       test(origin, async () => {
         const response = await request(this.app).get('/__health').set('Origin', origin).send()
         expect(response.status).toEqual(200)

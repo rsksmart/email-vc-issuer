@@ -61,8 +61,14 @@ enum CredentialType {
 }
 
 const getKeyByCredentialType = (module: CredentialType) => {
-  if (module === CredentialType.email) return 'EmailVerifiableCredential'
-  if (module === CredentialType.phone) return 'PhoneVerifiableCredential'
+  if (module === CredentialType.email) {
+    return 'EmailVerifiableCredential'
+  }
+
+  if (module === CredentialType.phone) {
+    return 'PhoneVerifiableCredential'
+  }
+
   throw new Error('Undefined module')
 }
 
@@ -177,7 +183,11 @@ function App() {
             <option value={CredentialType.phone}>Phone</option>
           </select>
           <div className="input-group">
-            <input type="email" value={subject} onChange={handleInputChangeFactory(setSubject)} disabled={!account || credentialType === CredentialType.none || wasEmailSent} placeholder={credentialType && `Enter your ${credentialType}`} className="form-control" />
+            <input type="email"
+              value={subject}
+              onChange={handleInputChangeFactory(setSubject)}
+              disabled={!account || credentialType === CredentialType.none || wasEmailSent}
+              placeholder={credentialType && `Enter your ${credentialType}`} className="form-control" />
             <div className="input-group-append">
               <button id="request" onClick={requestVerification} disabled={!subject || wasEmailSent} className="btn btn-primary">request</button>
             </div>
@@ -187,7 +197,12 @@ function App() {
           <h3>3. Verify</h3>
           <p>Copy the verification code received and paste it here.</p>
           <div className="input-group">
-            <input type="text" value={verificationCode} onChange={handleInputChangeFactory(setVerificationCode)} disabled={!wasEmailSent} placeholder="Verification code" className="form-control" />
+            <input type="text"
+              value={verificationCode}
+              onChange={handleInputChangeFactory(setVerificationCode)}
+              disabled={!wasEmailSent}
+              placeholder="Verification code"
+              className="form-control" />
             <div className="input-group-append">
               <button onClick={verify} disabled={!wasEmailSent} className="btn btn-primary">verify</button>
             </div>
@@ -200,7 +215,10 @@ function App() {
           <p style={{ wordWrap: 'break-word' }}>{savedInDataVault && 'Saved!'}</p>
 
           <h3>5. Present credential</h3>
-          <p>Go to the <a href="https://identity.rifos.org/" target="_blank" rel="noreferrer">RIF Identity Manager</a> to present your credential. Find it under 'Data Vault' tab.</p>
+          <p>
+            Go to the <a href="https://identity.rifos.org/" target="_blank" rel="noreferrer">RIF Identity Manager</a>&nbsp;
+            to present your credential. Find it under 'Data Vault' tab.
+          </p>
         </div>
       </div>
     </div>

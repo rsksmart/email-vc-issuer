@@ -64,17 +64,15 @@ export class VCIssuer implements IVCIssuer {
   }
 
   private async findIssuedVC(did: string, subject: string) {
-    const issuedVC = await this.issuedVCs.findOne({
+    return this.issuedVCs.findOne({
       where: { did, type: this.credentialType, subject },
       select: ['jwt']
     })
-
-    return issuedVC
   }
 
   private async createVC(did: string, subject: string) {
     const payload = this.credentialTemplate(did, subject)
-    return await createVerifiableCredentialJwt(payload, this.issuer)
+    return createVerifiableCredentialJwt(payload, this.issuer)
   }
 
   private async saveVC(did: string, subject: string, jwt: string) {

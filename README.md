@@ -150,7 +150,7 @@ The service is built to make easy to add new verification services. You need to:
     2. Create a `Sender` class implementing `sendVerificationCode` function
 3. Prepare the instance of `VCIssuer` at `setupServices` in `./back/src/index.ts` using the _template_, the `Sender` and a desired `credentialType`
 4. Backend all set! The API is no serverd at `/${credentialType.toLowerCase()}/requestVerification` and `/${credentialType.toLowerCase()}/verify`
-5. Now, just add the credential type
+5. Now, to add the feature to the front, just add to `front/src/App.tsx` the credential type
     1. `CredentialType` indicating the API module name
     2. `getKeyByCredentialType` for the file key in the Data Vault
 

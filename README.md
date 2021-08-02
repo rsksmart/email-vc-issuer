@@ -1,9 +1,9 @@
 <p align="middle">
     <img src="https://www.rifos.org/assets/img/logo.svg" alt="logo" height="100" >
 </p>
-<h3 align="middle"><code>email-vc-issuer</code></h3>
+<h3 align="middle"><code>vc-issuer</code></h3>
 <p align="middle">
-    Email Verifiable Credential issuer.
+    Verifiable Credential issuer
 </p>
 
 <p align="middle">
@@ -24,74 +24,106 @@
   </a>
 </p>
 
-This service allows the controller of a decentralized identity to verify your email address.
+Use this tool to issue Verifiable Credentials claming email and phone verifications.
 
-## Try it
+Try it out at [email-verifier.identity.rifos.org](https://email-verifier.identity.rifos.org/)
 
-### Configure
+## Features
 
-Create an `.env` file under `./back` folder with the following:
+The backend enables email and phone verificatoins:
 
-```
-PRIVATE_KEY=private key associated to the service. Is used to sign the email VCs
-```
+- Email verificatoins - uses [`nodemailer`](https://github.com/nodemailer/nodemailer)
+- Phones verifications sending SMS - uses [Twilo](https://www.twilio.com/)
+- Verifies digital signatures - uses [`ethereumjs-util`](https://github.com/ethereumjs/ethereumjs-util)
+- Issues Verifiable Credentials - uses [`did-jwt-vc`](https://github.com/decentralized-identity/did-jwt-vc)
+- Saves the issued credentials in a database - uses [`typeorm`](https://typeorm.io/#/) and SQLite
 
-Optionally you can set:
+The frontend is a simple app that serves as tool and code example:
 
-```
-SMTP_HOST=host of the mail server
-SMTP_PORT=port of the mail server
-SMTP_USER=user to log in to the mail server. Will be used to set the from of the email
-SMTP_PASS=password to log in to the mail server
-LOG_FILE=relative path of the log file
-LOG_ERROR_FILE=relative path of the error log file
-NETWORK_NAME=rsk:testnet or rsk
-PORT=port where the service will be served
-```
+- Integrates RSK compatible wallets - uses [`@rsksmart/rLogin`](https://github.com/rsksmart/rLogin)
+- Allows to save credentials in the cloud - uses [RIF Data Vault](https://github.com/rsksmart/rif-data-vault)
 
-> To run in production you will have to set SMTP variables. Ethereal is a testing framework.
+## Run for development
 
-Default values: 
+Development mode will allow you to run the tool without actual verifications. The verificatoin code will be logged and sent via [Ethereal](https://ethereal.email)
 
-```
-SMTP_HOST=dynamically created using https://ethereal.email/
-SMTP_PORT=dynamically created using https://ethereal.email/
-SMTP_USER=dynamically created using https://ethereal.email/
-SMTP_PASS=dynamically created using https://ethereal.email/
-LOG_FILE=./log/email-vc-issuer.log
-LOG_ERROR_FILE=./log/email-vc-issuer.error.log
-NETWORK_NAME=rsk
-PORT=5108
-```
+### Setup
 
-Example:
+1. Install dependencies
+
+  ```
+  npm i
+  npm run setup
+  ```
+
+2. Configure the backend, create a `.env` file in './back' folder with
+
+  ```dosini
+  PRIVATE_KEY=ab12cd34... # a 32 bytes private key used to sign the verifiable credentials
+  ```
+
+### Run tests
 
 ```
-PRIVATE_KEY=3b9c8ea990c87091eca8ed8e82edf73c6b1c37fe7640e95460cedff09bdf21ff
+npm test
 ```
 
-NOTE: With this `.env` config file, the email will not be sent to the given address, it will print an url in the console with the URL to preview the "sent" email
-
-### Run it
-
-From the root folder, run the following
+### Run the service
 
 ```
-npm i
-npm run setup
-npm run serve:test
+npm start
 ```
 
-## Backend description
+### Run in watch mode
 
-1. User sends `POST /requestVerification/:did { emailAddress }`
-2. Service sends email to `emailAddress` with a `verificationCode`
-3. User opens mailbox, copies verification code, signs message including the verification code and sends `POST /verify/:did { sig }`
-4. Services recovers signer address from `sig`, and compares `verificationCode` to the sent code. If matches, issues an [Email Verifiable Credential](https://github.com/rsksmart/vc-json-schemas/tree/main/schema/EmailCredentialSchema/v1.0)
+```
+npm run start:dev
+```
 
-### Run it with Docker
+### Branching model
 
-Create the `.env` file with the above guideline, and then run the following
+- `main` has latest release. Merge into `main` will deploy front-end to [email-verifier.identity.rifos.org](https://email-verifier.identity.rifos.org/). Do merge commits.
+- `develop` has latest approved PR. PRs need to pass `ci`, _LGTM_ and _Sonar_. Do squash & merge.
+- Use branches pointing to `develop` to add new PRs.
+- Do external PRs against latest commit in `develop`.
+
+## Run for production
+
+You can optionally run any of the services. You will need to add some `.env` variables to activate the features. First add
+
+```
+NODE_ENV=production
+```
+
+### Email verifications
+
+```dosini
+SMTP_HOST=
+SMTP_PORT=
+SMTP_USER=
+SMTP_PASS=
+```
+
+### Phone verifications
+
+```dosini
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_PHONE_NUMBER=
+```
+
+### Optional config
+
+```env
+LOG_FILE=./log/email-vc-issuer.log # relative path of the log file
+LOG_ERROR_FILE=./log/email-vc-issuer.log # relative path of the error log file
+NETWORK_NAME=rsk # rsk:testnet or rsk, for the issuer DID
+PORT=5108 # port where the service will be served
+```
+
+### Run the backend with Docker
+
+Create the `.env` following the description above and run it
 
 ```
 cd back/
@@ -99,22 +131,48 @@ docker-compose build
 docker-compose up -d
 ```
 
-It will expose the api in the PORT described in the `.env` file
+> It opens port 5108. Change it in the compose if you have changed it in the config file.
 
-## Frontend description
+## How it works
 
-React.js app integrating:
-1. Choose wallet using [`rLogin`](https://github.com/rsksmart/rLogin)
-2. Request email verification
-3. Sign email verification with wallet of choice
-4. Receive email Verifiable credential
-5. Store credential in Data vault using [`rif-data-vault`](https://github.com/rsksmart/rif-data-vault)
+The tool will make the user digirally sign a verificatoin code that is sent via email/phone. This will proove that the user controls the asset and the wallet. The backend will verify this signature, sign a [Verifiable Credentials](https://www.w3.org/TR/vc-data-model/) and send it to the user. The user can then save to their [Data Vault](https://github.com/rsksmart/rif-data-vault)
 
-## Branching model
+![](sequence.png)
 
-- `main` has latest release. Merge into `main` will deploy front-end to [email-verifier.identity.rifos.org](https://email-verifier.identity.rifos.org/). Do merge commits.
-- `develop` has latest approved PR. PRs need to pass `ci`, _LGTM_ and _Sonar_. Do squash & merge.
-- Use branches pointing to `develop` to add new PRs.
-- Do external PRs against latest commit in `develop`.
+## Adding new verifiers
 
+The service is built to make easy to add new verification services. You need to:
+1. Set up the Credential subject
+    1. Create the new Schemas at [`@rsksmart/vc-json-schemas`](https://github.com/rsksmart/vc-json-schemas) and [`@rsksmart/vc-json-schemas-parser`](https://github.com/rsksmart/vc-json-schemas-parser)
+    2. Create a _template_ function to create the new VC in `./back/src/vc.ts`
+2. Set up the transport service
+    1. Add the transport service configurations to `./back/src/config.ts`
+    2. Create a `Sender` class implementing `sendVerificationCode` function
+3. Prepare the instance of `VCIssuer` at `setupServices` in `./back/src/index.ts` using the _template_, the `Sender` and a desired `credentialType`
+4. Backend all set! The API is no serverd at `/${credentialType.toLowerCase()}/requestVerification` and `/${credentialType.toLowerCase()}/verify`
+5. Now, to add the feature to the front, just add to `front/src/App.tsx` the credential type
+    1. `CredentialType` indicating the API module name
+    2. `getKeyByCredentialType` for the file key in the Data Vault
 
+The best example is Twilo integration
+
+```typescript
+import { Logger } from '@rsksmart/rif-node-utils/lib/logger'
+import { Twilio } from 'twilio'
+import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message'
+import { Sender } from './sender'
+
+export class SMSSender extends Sender<MessageInstance> {
+  twilio: Twilio
+  from: string
+
+  constructor(twilio: Twilio, from: string, logger: Logger) {
+    super(logger)
+    this.twilio = twilio
+    this.from = from
+  }
+
+  logSendResult = (result: MessageInstance): void => { this.logger.info(`SMS sent: ${result.sid}`) }
+  sendVerificationCode = (to: string, text: string): Promise<any>  => this.twilio.messages.create({ from: this.from, to, body: text })
+}
+```

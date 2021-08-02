@@ -1,13 +1,14 @@
 {
   "name": "email-vc-issuer",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Email Verifiable Credential issuer",
   "main": "index.js",
   "scripts": {
-    "test": "cd back && npm test && cd ../front && yarn test --watchAll=false",
     "setup": "cd back && npm i && cd .. && cd front && yarn",
-    "serve:test": "concurrently \"cd back && npm run serve\" \"cd front && yarn start\""
+    "test": "cd back && npm test && npm run lint && cd ../front && yarn test --watchAll=false",
+    "start": "concurrently \"cd back && npm run serve\" \"cd front && yarn start\"",
+    "start:dev": "concurrently \"cd back && npm run start:dev\" \"cd front && yarn start:dev\""
   },
   "repository": {
     "type": "git",
@@ -20,6 +21,7 @@
   },
   "homepage": "https://github.com/rsksmart/email-vc-issuer#readme",
   "devDependencies": {
+    "@types/jest": "^26.0.24",
     "concurrently": "^5.3.0",
     "serve": "^11.3.2"
   }

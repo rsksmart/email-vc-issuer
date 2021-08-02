@@ -1,7 +1,7 @@
 {
   "name": "email-vc-issuer",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Email Verifiable Credential issuer",
   "main": "index.js",
   "scripts": {

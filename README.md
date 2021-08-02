@@ -142,24 +142,37 @@ The tool will make the user digirally sign a verificatoin code that is sent via 
 ## Adding new verifiers
 
 The service is built to make easy to add new verification services. You need to:
-1. Create a function "create payload" that will create the VC
-2. Instanciate `VCIssuer` with the desired `credentialType`
-3. Create your "send verificatoin code" function
-4. Set up the API using `setupApi` and a desired `prefix`
+1. Set up the Credential subject
+    1. Create the new Schemas at [`@rsksmart/vc-json-schemas`](https://github.com/rsksmart/vc-json-schemas) and [`@rsksmart/vc-json-schemas-parser`](https://github.com/rsksmart/vc-json-schemas-parser)
+    2. Create a _template_ function to create the new VC in `./back/src/vc.ts`
+2. Set up the transport service
+    1. Add the transport service configurations to `./back/src/config.ts`
+    2. Create a `Sender` class implementing `sendVerificationCode` function
+3. Prepare the instance of `VCIssuer` at `setupServices` in `./back/src/index.ts` using the _template_, the `Sender` and a desired `credentialType`
+4. Backend all set! The API is no serverd at `/${credentialType.toLowerCase()}/requestVerification` and `/${credentialType.toLowerCase()}/verify`
+5. Now, just add the credential type
+    1. `CredentialType` indicating the API module name
+    2. `getKeyByCredentialType` for the file key in the Data Vault
 
 The best example is Twilo integration
 
 ```typescript
-const twilio = new Twilio(config.TWILIO_ACCOUNT_SID, config.TWILIO_AUTH_TOKEN)
+import { Logger } from '@rsksmart/rif-node-utils/lib/logger'
+import { Twilio } from 'twilio'
+import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message'
+import { Sender } from './sender'
 
-const sendSmsVerificationCode = async (to: string, body: string) => {
-  const message = await twilio.messages.create({ from, to, body })
-  logger.info(`SMS sent: ${message.sid}`)
+export class SMSSender extends Sender<MessageInstance> {
+  twilio: Twilio
+  from: string
+
+  constructor(twilio: Twilio, from: string, logger: Logger) {
+    super(logger)
+    this.twilio = twilio
+    this.from = from
+  }
+
+  logSendResult = (result: MessageInstance): void => { this.logger.info(`SMS sent: ${result.sid}`) }
+  sendVerificationCode = (to: string, text: string): Promise<any>  => this.twilio.messages.create({ from: this.from, to, body: text })
 }
-
-const phoneVCIssuer = new VCIssuer(identity, connection, 'PhoneNumber', createPhoneNumberCredentialPayload)
-setupApi(app, '/phone', phoneVCIssuer, sendSmsVerificationCode, logger)
-logger.info(`Phone verificatoins feature ready`)
 ```
-
-To add it to the front end you will just need to create a new option in the credential type selector and choose a Data Vault key for it.

@@ -1,10 +1,10 @@
 import { Connection, Repository } from 'typeorm'
-import { createVerifiableCredentialJwt } from 'did-jwt-vc'
+import { createVerifiableCredentialJwt, JwtCredentialPayload, Issuer } from 'did-jwt-vc'
 import { decorateVerificationCode, VerificationRequest } from './verificationRequest'
 import { IssuedVC } from './vc'
+import { Sender } from './senders/sender'
 import { getAccountFromDID } from './did'
 import { ecrecover } from './ecrecover'
-import { Issuer, JwtCredentialPayload } from 'did-jwt-vc'
 
 export interface IVCIssuer {
   credentialType: string
@@ -15,21 +15,28 @@ export interface IVCIssuer {
 export type CredentialTemplate =  (did: string, subject: string) => JwtCredentialPayload
 
 export class VCIssuer implements IVCIssuer {
-  issuer: Issuer
-  issuedVCs: Repository<IssuedVC>
-  verificationRequests: Repository<VerificationRequest>
   public credentialType: string
   credentialTemplate: CredentialTemplate
 
+  issuer: Issuer
+  sender: Sender<any>
+
+  verificationRequests: Repository<VerificationRequest>
+  issuedVCs: Repository<IssuedVC>
+
   constructor(
-    issuer: Issuer,
-    connection: Connection,
     credentialType: string,
     credentialTemplate: CredentialTemplate,
+    connection: Connection,
+    issuer: Issuer,
+    sender: Sender<any>
   ) {
     this.credentialType = credentialType
     this.credentialTemplate = credentialTemplate
+
     this.issuer = issuer
+    this.sender = sender
+
     this.issuedVCs = connection.getRepository(IssuedVC)
     this.verificationRequests = connection.getRepository(VerificationRequest)
   }
@@ -72,8 +79,9 @@ export class VCIssuer implements IVCIssuer {
     await this.issuedVCs.save(newIssuedVC)
   }
 
-  async requestVerification(did: string, request: string): Promise<string> {
-    const verificationRequest = await this.createRequest(did, request)
+  async requestVerification(did: string, subject: string): Promise<string> {
+    const verificationRequest = await this.createRequest(did, subject)
+    await this.sender.send(subject, verificationRequest.code)
     return verificationRequest.code
   }
 

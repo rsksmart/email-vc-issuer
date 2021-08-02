@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Application } from 'express'
 import cors from 'cors'
 import rateLimit from 'express-rate-limit'
 
@@ -14,7 +14,7 @@ const corsOptions: Parameters<typeof cors>[0] = {
   }
 }
 
-export const createApp = (): Express.Application => {
+export const createApp = (): Application => {
   const app = express()
   app.use(cors(corsOptions))
 

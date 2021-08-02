@@ -1,15 +1,30 @@
-import { createConnection, Connection } from 'typeorm'
 import fs from 'fs'
+import { createConnection, Connection } from 'typeorm'
 import { Resolver } from 'did-resolver'
 import { getResolver } from 'ethr-did-resolver'
 import { verifyCredential } from 'did-jwt-vc'
 import MockDate from 'mockdate'
 import { VCIssuer } from '../src/issuer'
 import { createIssuerIdentity } from '../src/did'
+import { Sender, SendVerificationCode } from '../src/senders/sender'
 import { createEmailCredentialPayload, IssuedVC } from '../src/vc'
-import { decorateVerificationCode, VerificationRequest } from '../src/verificationRequest'
-import { did, issuerPrivateKey, subject, type, issuerDid } from './utils'
+import { decorateVerificationCode, VerificationRequest, } from '../src/verificationRequest'
+import { did, issuerPrivateKey, subject, type, issuerDid, logger } from './utils'
 import { rpcPersonalSign } from './personalSign'
+import { Logger } from '@rsksmart/rif-node-utils/lib/logger'
+
+export class MockSender extends Sender<any> {
+  mockSendFn: jest.MockedFunction<SendVerificationCode>
+
+  constructor(logger: Logger, mockSendFn: jest.MockedFunction<SendVerificationCode>) {
+    super(logger)
+    this.mockSendFn = mockSendFn
+  }
+
+  // eslint-disable-next-line
+  logSendResult(result: any): void {}
+  sendVerificationCode = (to: string, text: string): Promise<any> => this.mockSendFn(to, text)
+}
 
 const userPrivateKey = Buffer.from('876d78e89797cf2cf9441e4d0d111589cd8b36a20485d4073d03193e2f3d4861', 'hex') // do not use
 const userDid = 'did:ethr:rsk:0x87eb390df1e05ef0560e387206f5997034cd6f28'
@@ -23,6 +38,8 @@ export const resolver = new Resolver(getResolver({
 describe('issuer', function (this: {
   database: string
   connection: Connection
+  sendVerificationCode: jest.MockedFunction<SendVerificationCode>
+  sender: Sender<any>
   vcIssuer: VCIssuer
   issue: () => Promise<string>
 }) {
@@ -38,7 +55,9 @@ describe('issuer', function (this: {
       synchronize: true
     })
 
-    this.vcIssuer = new VCIssuer(identity, this.connection, type, createEmailCredentialPayload)
+    this.sendVerificationCode = jest.fn()
+    this.sender = new MockSender(logger, this.sendVerificationCode)
+    this.vcIssuer = new VCIssuer(type, createEmailCredentialPayload, this.connection, identity, this.sender)
 
     this.issue = async () => {
       const code = await this.vcIssuer.requestVerification(userDid, subject)
@@ -68,6 +87,14 @@ describe('issuer', function (this: {
       const requests = await this.connection.getRepository(VerificationRequest).find({ where: { did, type }})
       expect(requests).toHaveLength(1)
       expect(requests[0].code).toEqual(code)
+    })
+
+    test('sends verification code', async () => {
+      const code = await this.vcIssuer.requestVerification(did, subject)
+      expect(this.sendVerificationCode.mock.calls).toHaveLength(1)
+      expect(this.sendVerificationCode.mock.calls[0]).toEqual([subject, code])
+      expect(this.sendVerificationCode.mock.results).toHaveLength(1)
+      expect(this.sendVerificationCode.mock.results[0]).toEqual({ type: 'return' })
     })
   })
 

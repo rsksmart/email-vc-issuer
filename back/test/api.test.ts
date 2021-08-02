@@ -1,9 +1,9 @@
 import express from 'express'
 import request from 'supertest'
-import { loggerFactory } from '@rsksmart/rif-node-utils/lib/logger'
-import { setupApi, SendVerificationCode } from '../src/api'
+import { setupApi } from '../src/api'
 import { IVCIssuer } from '../src/issuer'
-import { did, type, subject, code, jwt } from './utils'
+import { SendVerificationCode } from '../src/senders/sender'
+import { did, type, subject, code, jwt, logger } from './utils'
 
 class VCIssuerMock implements IVCIssuer {
   public requestVerificatonFails = false
@@ -20,15 +20,6 @@ const prefix = '/test'
 const requestVerificationUrl = `${prefix}/requestVerification/${did}`
 const verifyUrl = `${prefix}/verify/${did}`
 
-const getMockError = async (value: Promise<any>): Promise<Error> => {
-  try {
-    await value
-  } catch(e: any) {
-    return e as Error
-  }
-  throw new Error('Didn\'t fail')
-}
-
 describe('api', function (this: {
   app: ReturnType<typeof express>
   vcIssuer: VCIssuerMock
@@ -37,9 +28,7 @@ describe('api', function (this: {
   beforeEach(async () => {
     this.app = express()
     this.vcIssuer = new VCIssuerMock()
-    this.sendVerificationCode = jest.fn()
-    const logger = loggerFactory({ env: 'test', infoFile: './log/api-test-info.log', errorFile: './api-test-error.log' })('test')
-    setupApi(this.app, prefix, this.vcIssuer, this.sendVerificationCode, logger)
+    setupApi(this.app, prefix, this.vcIssuer, logger)
   })
 
   describe('request verification', () => {
@@ -55,29 +44,10 @@ describe('api', function (this: {
       .then(({ status }) => expect(status).toEqual(500))
     )
 
-    test('sends verificatoin code', async () => {
-      const response = await request(this.app).post(requestVerificationUrl).send({ subject })
-      expect(response.status).toEqual(200)
-      expect(this.sendVerificationCode.mock.calls).toHaveLength(1)
-      expect(this.sendVerificationCode.mock.calls[0]).toEqual([subject, code])
-      expect(this.sendVerificationCode.mock.results).toHaveLength(1)
-      expect(this.sendVerificationCode.mock.results[0]).toEqual({ type: 'return' })
-    })
-
     test('fails creating verification code responses 500', async () => {
       this.vcIssuer.requestVerificatonFails = true
       const response = await request(this.app).post(requestVerificationUrl).send({ subject })
       expect(response.status).toEqual(500)
-    })
-
-    test('fails sending verification code responses 500', async () => {
-      const rejectValue = 'Testing Error'
-      this.sendVerificationCode.mockRejectedValue(rejectValue)
-      const response = await request(this.app).post(requestVerificationUrl).send({ subject })
-      expect(response.status).toEqual(500)
-      expect(this.sendVerificationCode.mock.results).toHaveLength(1)
-      expect(this.sendVerificationCode.mock.results[0].type).toEqual('return')
-      expect(await getMockError(this.sendVerificationCode.mock.results[0].value)).toEqual(rejectValue)
     })
   })
 

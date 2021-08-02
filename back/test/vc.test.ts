@@ -8,7 +8,7 @@ const validateEmailSchema = ajv.compile(emailCredentialSchema.schema)
 // TODO: Phone Schema validator
 
 describe('vc', () => {
-  test('=email vc payload', () => {
+  test('email vc payload', () => {
     const payload = createEmailCredentialPayload(did, subject)
     const expected = {
       sub: did,

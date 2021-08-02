@@ -35,7 +35,7 @@ logger.info(`Service DID: ${identity.did}`)
 async function setupServices(config: Config, connection: Connection, logger: Logger) {
   if (config.NODE_ENV === 'dev') {
     logger.info(`Setting up testing mail sender...`)
-    const sender = await TestEmailSender.create(logger)
+    const sender = await TestEmailSender.createTestEmailSender(logger)
     const emailVCIssuer = new VCIssuer('Email', createEmailCredentialPayload, connection, identity, sender)
     logger.info(`Testing mail sender ready`)
     return [emailVCIssuer]
@@ -46,7 +46,7 @@ async function setupServices(config: Config, connection: Connection, logger: Log
 
     if(config.smtpConfig) {
       logger.info(`Setting up mail sender...`)
-      const sender = new EmailSender(config.smtpConfig.SMTP_HOST, config.smtpConfig.SMTP_PORT, config.smtpConfig.SMTP_USER, config.smtpConfig.SMTP_PASS, logger)
+      const sender = EmailSender.createEmailSender(config.smtpConfig.SMTP_HOST, config.smtpConfig.SMTP_PORT, config.smtpConfig.SMTP_USER, config.smtpConfig.SMTP_PASS, logger)
       const emailVCIssuer = new VCIssuer('Email', createEmailCredentialPayload, connection, identity, sender)
       logger.info(`Mail sender ready`)
       services.push(emailVCIssuer)

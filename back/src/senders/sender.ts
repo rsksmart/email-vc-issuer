@@ -9,8 +9,8 @@ export abstract class Sender<SendResult> {
     this.logger = logger
   }
 
-  abstract logSendResult(result: SendResult): void
   abstract sendVerificationCode: SendVerificationCode
+  abstract logSendResult(result: SendResult): void
 
   async send(to: string, text: string): Promise<any> {
     try {

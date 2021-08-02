@@ -2,22 +2,17 @@ import { Logger } from '@rsksmart/rif-node-utils/lib/logger'
 import { createTransport } from 'nodemailer'
 import { Sender } from './sender'
 import Mail from 'nodemailer/lib/mailer'
+import SMTPTransport from 'nodemailer/lib/smtp-transport'
 
 export class EmailSender extends Sender<any> {
   user: string
   mail: Mail
 
-  constructor(host: string, port: number, user: string, pass: string, logger: Logger) {
+  constructor(options: SMTPTransport.Options, logger: Logger) {
     super(logger)
 
-    this.user = user
-
-    this.mail = createTransport({
-      host,
-      port,
-      secure: true,
-      auth: { user, pass }
-    })
+    this.user = options.auth!.user!
+    this.mail = createTransport(options)
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -32,5 +27,14 @@ export class EmailSender extends Sender<any> {
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   logSendResult(result: any): void {
     this.logger.info(`Email sent: ${result.messageId}`)
+  }
+
+  static createEmailSender(host: string, port: number, user: string, pass: string, logger: Logger): EmailSender {
+    return new EmailSender({
+      host,
+      port,
+      secure: true,
+      auth: { user, pass }
+    }, logger)
   }
 }

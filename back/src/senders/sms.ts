@@ -13,6 +13,8 @@ export class SMSSender extends Sender<MessageInstance> {
     this.from = from
   }
 
-  logSendResult = (result: MessageInstance): void => { this.logger.info(`SMS sent: ${result.sid}`) }
+  logSendResult = (result: MessageInstance): void => {
+    this.logger.info(`SMS sent: ${result.sid}`)
+  }
   sendVerificationCode = (to: string, text: string): Promise<any>  => this.twilio.messages.create({ from: this.from, to, body: text })
 }

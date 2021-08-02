@@ -49,14 +49,18 @@ export class VCIssuer implements IVCIssuer {
 
   private async getRequest(did: string) {
     const verificationRequest = await this.verificationRequests.findOne({ where: { did, type: this.credentialType } })
-    if (!verificationRequest) throw new Error('Request not found')
+    if (!verificationRequest) {
+      throw new Error('Request not found')
+    }
     return verificationRequest
   }
 
   private verifySignature(did: string, code: string, sig: string) {
     const msg = decorateVerificationCode(code)
     const signer = ecrecover(msg, sig)
-    if (getAccountFromDID(did) !== signer.toLowerCase()) throw new Error('Invalid signature')
+    if (getAccountFromDID(did) !== signer.toLowerCase()) {
+      throw new Error('Invalid signature')
+    }
   }
 
   private async findIssuedVC(did: string, subject: string) {
@@ -65,13 +69,12 @@ export class VCIssuer implements IVCIssuer {
       select: ['jwt']
     })
 
-    if (issuedVC) return issuedVC
+    return issuedVC
   }
 
   private async createVC(did: string, subject: string) {
     const payload = this.credentialTemplate(did, subject)
-    const jwt = await createVerifiableCredentialJwt(payload, this.issuer)
-    return jwt
+    return await createVerifiableCredentialJwt(payload, this.issuer)
   }
 
   private async saveVC(did: string, subject: string, jwt: string) {
@@ -87,14 +90,18 @@ export class VCIssuer implements IVCIssuer {
 
   async verify(did: string, sig: string): Promise<string> {
     const verificationRequest = await this.getRequest(did)
-    if (verificationRequest.hasExpired()) throw new Error('Request has expired')
+    if (verificationRequest.hasExpired()) {
+      throw new Error('Request has expired')
+    }
 
     const { code, subject } = verificationRequest
 
     this.verifySignature(did, code, sig)
 
     const issuedVC = await this.findIssuedVC(did, subject)
-    if (issuedVC) return issuedVC.jwt
+    if (issuedVC) {
+      return issuedVC.jwt
+    }
 
     const jwt = await this.createVC(did, subject)
     await this.saveVC(did, subject, jwt)

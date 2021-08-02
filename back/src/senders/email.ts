@@ -11,7 +11,11 @@ export class EmailSender extends Sender<any> {
   constructor(options: SMTPTransport.Options, logger: Logger) {
     super(logger)
 
-    this.user = options.auth!.user!
+    if(!options.auth || !options.auth.user) {
+      throw new Error('Invlaid SMTP setup')
+    }
+
+    this.user = options.auth.user
     this.mail = createTransport(options)
   }
 

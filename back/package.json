@@ -5,7 +5,9 @@
   "description": "VC Issuer backend",
   "main": "dist/index.js",
   "scripts": {
-    "test": "npx jest --coverage --verbose && npx eslint ./src ./test --ext .js,.jsx,.ts,.tsx",
+    "test": "npx jest --coverage --verbose",
+    "lint": "npx eslint ./src ./test --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "npx eslint ./src ./test --ext .js,.jsx,.ts,.tsx --fix",
     "build": "npx tsc",
     "build:watch": "npx tsc --watch",
     "serve": "node dist/index.js",

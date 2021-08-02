@@ -19,6 +19,7 @@ export abstract class Sender<SendResult> {
       return result
     } catch (e: any) {
       this.logger.error(e)
+      return null
     }
   }
 }

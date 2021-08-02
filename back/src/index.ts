@@ -1,8 +1,7 @@
 import dotenv from 'dotenv'
 import { Connection } from 'typeorm'
 import { Twilio } from 'twilio'
-import { Logger } from '@rsksmart/rif-node-utils/lib/logger'
-import { setupConfig, Config } from './config'
+import { setupConfig } from './config'
 import { createLogger } from './logger'
 import { createApp } from './server'
 import { createIssuerIdentity } from './did'
@@ -32,7 +31,7 @@ const app = createApp()
 const identity = createIssuerIdentity(config.PRIVATE_KEY, config.NETWORK_NAME)
 logger.info(`Service DID: ${identity.did}`)
 
-async function setupServices(config: Config, connection: Connection, logger: Logger) {
+async function setupServices(connection: Connection): Promise<VCIssuer[]> {
   if (config.NODE_ENV === 'dev') {
     logger.info(`Setting up testing mail sender...`)
     const sender = await TestEmailSender.createTestEmailSender(logger)
@@ -63,14 +62,20 @@ async function setupServices(config: Config, connection: Connection, logger: Log
 
     return services
   }
+
+  throw new Error('Invalid config')
 }
 
 async function main () {
   const connection = await createConnection()
 
-  const services = await setupServices(config, connection, logger)
+  const services = await setupServices(connection)
 
-  for (const issuer of services!) {
+  if (!services) {
+    throw new Error('No services set up')
+  }
+
+  for (const issuer of services) {
     logger.info(`Setting up API for ${issuer.credentialType} credentials`)
     setupApi(app, `/${issuer.credentialType.toLowerCase()}`, issuer, logger)
 

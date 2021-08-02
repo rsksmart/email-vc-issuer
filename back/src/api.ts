@@ -8,7 +8,9 @@ export function setupApi(app: Application, prefix: string, vcIssuer: IVCIssuer, 
     const { did } = req.params
     const { subject } = req.body
 
-    if ((subject === undefined) || (subject === '')) return res.status(500).send('Subject not set')
+    if ((subject === undefined) || (subject === '')) {
+      return res.status(500).send('Subject not set')
+    }
 
     logger.info(`Requested verification - type: ${vcIssuer.credentialType} - subject: ${subject} - did: ${did}`)
 

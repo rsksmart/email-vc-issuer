@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import RLogin from '@rsksmart/rlogin'
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import Portis from '@portis/web3'
+import { ledgerProviderOptions } from '@rsksmart/rlogin-ledger-provider'
 import DataVaultWebClient, { AuthManager, AsymmetricEncryptionManager, SignerEncryptionManager } from '@rsksmart/ipfs-cpinner-client'
 import Nav from './Nav'
 import { createDidFormat } from '@rsksmart/did-utils'
@@ -41,6 +42,13 @@ export const rLogin = new RLogin({
           nodeUrl: 'https://public-node.testnet.rsk.co',
           chainId: 31
         }
+      }
+    },
+    'custom-ledger': {
+      ...ledgerProviderOptions,
+      options: {
+        rpcUrl: 'https://public-node.testnet.rsk.co',
+        chainId: 31
       }
     }
   },
@@ -89,7 +97,7 @@ function App() {
   const handleError = (error: Error) => setError(error ? error.message : 'Unhandled error')
 
   const enable = () => rLogin.connect()
-    .then(({ provider }: any) => {
+    .then(({ provider, disconnect }: any) => {
       setProvider(provider)
 
       Promise.all([

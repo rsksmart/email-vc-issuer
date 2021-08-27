@@ -62,6 +62,15 @@ Development mode will allow you to run the tool without actual verifications. Th
   PRIVATE_KEY=ab12cd34... # a 32 bytes private key used to sign the verifiable credentials
   ```
 
+3. Configure the frontend. Change the endpoint in the `.env` file in `./front` folder with
+
+  ```dosini
+  # REACT_APP_BACK_END_URL=https://email-verifier-backend.identity.rifos.org
+  REACT_APP_BACK_END_URL=http://localhost:5108
+  ```
+  
+  > If you run the frontend from anopther port than 3000, please configure the new port in the [`whitelist`](https://github.com/rsksmart/email-vc-issuer/blob/develop/back/src/server.ts)
+
 ### Run tests
 
 ```

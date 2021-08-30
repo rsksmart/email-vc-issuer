@@ -14,7 +14,33 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install dependencies
+      - name: Use Node.js 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - run: |
+             cd back
+             npm i
+             npm run setup
+             npm run test
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.MAIN_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.MAIN_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.MAIN_AWS_REGION }}
+
+      - name: Deploy vcissuer BACK
+        run: |
+          aws ssm send-command 
+              --document-name "AWS-RunRemoteScript" 
+              --instance-ids "${{ secrets.VCISSUER_EC2_ID }}" 
+              --region=${{ secrets.MAIN_AWS_REGION }} 
+              --comment "github interaction-vcissuer-back" 
+              --parameters '{"sourceType":["GitHub"],"sourceInfo":["{"owner":"rootstock", "repository":"ask-devops", "path": "vcissuer/","tokenInfo":"{{ssm-secure:github-token}}"}"],"commandLine":["deploy-vcissuer.sh"]}'
+
+      - name: Install FRONT dependencies
         run: |
           cd front
           yarn
@@ -27,7 +53,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.MAIN_AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.MAIN_AWS_REGION }}
 
-      - name: Deploy site to S3
+      - name: Deploy front to S3
         run: |
           cd front
           aws s3 sync --delete --only-show-errors build/ ${{ secrets.MAIN_S3_BUCKET }}

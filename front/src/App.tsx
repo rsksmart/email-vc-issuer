@@ -9,14 +9,6 @@ import { createDidFormat } from '@rsksmart/did-utils'
 
 const backUrl = process.env.REACT_APP_BACK_END_URL
 
-declare global {
-  interface Window {
-    ethereum: {
-      enable: () => Promise<string[]>
-    }
-  }
-}
-
 interface Web3Provider {
   request: (args: { method: string, params?: any[] }) => Promise<any>
 }

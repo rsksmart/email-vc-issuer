@@ -1,0 +1,20 @@
+// https://sequencediagram.org/
+
+fontawesome f007 User #000000
+fontawesome f2d0 Frontend #000000
+fontawesome f233 Backend #000000
+fontawesome f1c0 Data Vault #000000
+
+Frontend->User:Request wallet access\nprovider.request({ method: 'eth_accounts' })
+User->Frontend:Account
+Frontend->Backend:User's DID\nPOST :module/requestVerification/:did { emailAddress }
+Backend->User:Verification code (to user's mailbox/phone)
+User->Frontend:Copy&paste verification code and confirm
+Frontend->User:Request digital siganture\nprovider.request({ method: 'personal_sign', params: [verificationCode] })
+User->Frontend:Digital signature
+Frontend->Backend:Digital signature\n\nPOST :module/verify/:did { sig }
+Backend->Backend:Verify digital siganture
+Backend->Frontend:Verifiable Credential
+Frontend->User:Verifiable Credential
+User->Frontend:Save to Data Vault
+Frontend->Data Vault:Authenticates and save VC

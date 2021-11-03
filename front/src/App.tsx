@@ -54,12 +54,31 @@ const getEncryptionManager = async (provider: any) => {
   return await SignerEncryptionManager.fromWeb3Provider(provider)
 }
 
+enum CredentialType {
+  none = '',
+  email = 'email',
+  phone = 'phone'
+}
+
+const getKeyByCredentialType = (module: CredentialType) => {
+  if (module === CredentialType.email) {
+    return 'EmailVerifiableCredential'
+  }
+
+  if (module === CredentialType.phone) {
+    return 'PhoneVerifiableCredential'
+  }
+
+  throw new Error('Undefined module')
+}
+
 function App() {
   const [error, setError] = useState('')
   const [provider, setProvider] = useState<Web3Provider | null>(null)
   const [account, setAccount] = useState('')
   const [chainId, setChainId] = useState(0)
-  const [emailAddress, setEmailAddress] = useState('')
+  const [credentialType, setCredentialType] = useState(CredentialType.none)
+  const [subject, setSubject] = useState('')
   const [wasEmailSent, setWasEmailSent] = useState(false)
   const [verificationCode, setVerificationCode] = useState('')
   const [jwt, setJwt] = useState('')
@@ -83,7 +102,7 @@ function App() {
     })
     .catch(handleError)
 
-  const requestVerification = () => fetch(`${backUrl}/requestVerification/` + did, {
+  const requestVerification = () => fetch(`${backUrl}/${credentialType}/requestVerification/` + did, {
     method: 'POST',
     mode: 'cors',
     cache: 'no-cache',
@@ -93,7 +112,7 @@ function App() {
     },
     redirect: 'follow',
     referrerPolicy: 'no-referrer',
-    body: JSON.stringify({ emailAddress })
+    body: JSON.stringify({ subject: subject })
   }).then(() => {
     setWasEmailSent(true)
   }).catch(handleError)
@@ -104,7 +123,7 @@ function App() {
       `Verification code: ${verificationCode}`, // includes the decoration
       account
     ]
-  }).then((sig: string) => fetch(`${backUrl}/verify/` + did, {
+  }).then((sig: string) => fetch(`${backUrl}/${credentialType}/verify/` + did, {
     method: 'POST',
     mode: 'cors',
     cache: 'no-cache',
@@ -133,51 +152,73 @@ function App() {
     }),
     encryptionManager,
     serviceUrl
-  }).create({ key: 'EmailVerifiableCredential', content: jwt })
+  }).create({ key: getKeyByCredentialType(credentialType), content: jwt })
     .then(() => {
       setSavedInDataVault(true)
     })
   ).catch(handleError)
-
 
   return <div>
     <Nav />
     <div className="container">
       <div className="row">
         <div className="col">
-          <h1>Email VC Issuer</h1>
+          <h1>VC Issuer</h1>
 
           {error && <p className="error">Error: {error}</p>}
 
           <h3>1. Enable wallet</h3>
+          <p>Connect your wallet to the site to start the verification.</p>
           <button onClick={enable} disabled={account !== ''} className="btn btn-primary">enable</button>
           <p>{account}</p>
           <p>{did}</p> {/* fix network according wallet */}
 
-          <h3>2. Request email verification</h3>
+          <h3>2. Request verification</h3>
+          <p>Choose the asset you want to verify. A verification code will be sent to it.</p>
+          <select className="form-control" value={credentialType} disabled={!account || wasEmailSent} onChange={(event) => setCredentialType(event.target.value as CredentialType)}>
+            <option value={CredentialType.none} disabled hidden>
+              Select an Option
+            </option>
+            <option value={CredentialType.email}>Email</option>
+            <option value={CredentialType.phone}>Phone</option>
+          </select>
           <div className="input-group">
-            <input type="email" value={emailAddress} onChange={handleInputChangeFactory(setEmailAddress)} disabled={!account} placeholder="Email address" className="form-control" />
+            <input type="email"
+              value={subject}
+              onChange={handleInputChangeFactory(setSubject)}
+              disabled={!account || credentialType === CredentialType.none || wasEmailSent}
+              placeholder={credentialType && `Enter your ${credentialType}`} className="form-control" />
             <div className="input-group-append">
-              <button id="request" onClick={requestVerification} disabled={!account} className="btn btn-primary">request</button>
+              <button id="request" onClick={requestVerification} disabled={!subject || wasEmailSent} className="btn btn-primary">request</button>
             </div>
           </div>
           <p>{wasEmailSent && 'Email sent'}</p>
 
-          <h3>3. Verify your email</h3>
+          <h3>3. Verify</h3>
+          <p>Copy the verification code received and paste it here.</p>
           <div className="input-group">
-            <input type="text" value={verificationCode} onChange={handleInputChangeFactory(setVerificationCode)} disabled={!wasEmailSent} placeholder="Verification code" className="form-control" />
+            <input type="text"
+              value={verificationCode}
+              onChange={handleInputChangeFactory(setVerificationCode)}
+              disabled={!wasEmailSent}
+              placeholder="Verification code"
+              className="form-control" />
             <div className="input-group-append">
               <button onClick={verify} disabled={!wasEmailSent} className="btn btn-primary">verify</button>
             </div>
           </div>
           <p style={{ wordWrap: 'break-word' }}>{jwt}</p>
 
-          <h3>4. Store it in your Data Vault</h3>
+          <h3>4. Save</h3>
+          <p>You can now save your credential into your RIF Data Vault. This step will require you to sign different messages in your wallet.</p>
           <button onClick={saveInDataVault} disabled={!jwt} className="btn btn-primary">save</button>
           <p style={{ wordWrap: 'break-word' }}>{savedInDataVault && 'Saved!'}</p>
 
-          <h3>5. Validate in RIF Id Manager</h3>
-          <p>Go to the <a href="https://identity.rifos.org/" target="_blank" rel="noreferrer">RIF Identity Manager</a></p>
+          <h3>5. Present credential</h3>
+          <p>
+            Go to the <a href="https://identity.rifos.org/" target="_blank" rel="noreferrer">RIF Identity Manager</a>&nbsp;
+            to present your credential. Find it under 'Data Vault' tab.
+          </p>
         </div>
       </div>
     </div>

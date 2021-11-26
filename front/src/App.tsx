@@ -1,52 +1,22 @@
 import React, { useState } from 'react'
-import RLogin from '@rsksmart/rlogin'
-import WalletConnectProvider from '@walletconnect/web3-provider'
-import Portis from '@portis/web3'
+import { createRLogin } from '@rsksmart/rlogin-essentials'
 import DataVaultWebClient, { AuthManager, AsymmetricEncryptionManager, SignerEncryptionManager } from '@rsksmart/ipfs-cpinner-client'
 import Nav from './Nav'
 import { createDidFormat } from '@rsksmart/did-utils'
 
 const backUrl = process.env.REACT_APP_BACK_END_URL
 
-declare global {
-  interface Window {
-    ethereum: {
-      enable: () => Promise<string[]>
-    }
-  }
-}
 
 interface Web3Provider {
   request: (args: { method: string, params?: any[] }) => Promise<any>
 }
 
-export const rLogin = new RLogin({
-  cachedProvider: false,
-  providerOptions: {
-    walletconnect: {
-      package: WalletConnectProvider,
-      options: {
-        rpc: {
-          1: 'https://mainnet.infura.io/v3/8043bb2cf99347b1bfadfb233c5325c0',
-          30: 'https://public-node.rsk.co',
-          31: 'https://public-node.testnet.rsk.co'
-        }
-      }
-    },
-    portis: {
-      package: Portis,
-      options: {
-        id: 'bb40ce05-67d3-48d0-85ca-92536952f38e',
-        network: {
-          nodeUrl: 'https://public-node.testnet.rsk.co',
-          chainId: 31
-        }
-      }
-    }
-  },
-  supportedChains: [1, 30, 31]
-})
 
+export const rLogin = createRLogin({
+  1: 'https://mainnet.infura.io/v3/8043bb2cf99347b1bfadfb233c5325c0',
+  30: 'https://public-node.rsk.co',
+  31: 'https://public-node.testnet.rsk.co'
+})
 const handleInputChangeFactory = (setter: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => setter(e.target.value)
 
 const getEncryptionManager = async (provider: any) => {

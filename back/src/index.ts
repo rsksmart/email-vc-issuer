@@ -22,8 +22,6 @@ console.log(`
 dotenv.config()
 const config = setupConfig(process.env)
 
-console.log('Config', config)
-
 const logger = createLogger(config.NODE_ENV, config.LOG_FILE, config.LOG_ERROR_FILE)
 
 const app = createApp()
